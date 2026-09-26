@@ -1,0 +1,44 @@
+table DimSalesOrder
+	lineageTag: DimSalesOrder
+
+	column SalesOrderLineKey
+		dataType: int64
+		isKey
+		lineageTag: SalesOrderLineKey
+		summarizeBy: none
+		sourceColumn: SalesOrderLineKey
+
+	column Channel
+		dataType: string
+		lineageTag: SalesChannel
+		summarizeBy: none
+		sourceColumn: Channel
+
+	column 'Sales Order'
+		dataType: string
+		lineageTag: SalesOrderNumber
+		summarizeBy: none
+		sourceColumn: Sales Order
+
+	column 'Sales Order Line'
+		dataType: string
+		lineageTag: SalesOrderLine
+		summarizeBy: none
+		sourceColumn: Sales Order Line
+
+	partition DimSalesOrder = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Order_Sheet = Source{[Item="Sales Order_data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Order_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
+				        {"SalesOrderLineKey", Int64.Type},
+				        {"Channel", type text},
+				        {"Sales Order", type text},
+				        {"Sales Order Line", type text}
+				    })
+				in
+				    #"Changed Types"
+

@@ -1,0 +1,170 @@
+table FactSales
+	lineageTag: FactSales
+
+	measure 'Total Sales' = SUM(FactSales[Sales Amount])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: Measure_TotalSales
+
+	measure 'Total Cost' = SUM(FactSales[Total Product Cost])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: Measure_TotalCost
+
+	measure 'Total Profit' = [Total Sales] - [Total Cost]
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: Measure_TotalProfit
+
+	measure 'Profit Margin %' = DIVIDE([Total Profit], [Total Sales], 0)
+		formatString: 0.00%
+		lineageTag: Measure_ProfitMarginPct
+
+	measure 'Total Orders' = DISTINCTCOUNT(FactSales[SalesOrderLineKey])
+		formatString: #,0
+		lineageTag: Measure_TotalOrders
+
+	measure 'Total Units Sold' = SUM(FactSales[Order Quantity])
+		formatString: #,0
+		lineageTag: Measure_TotalUnitsSold
+
+	measure 'Average Order Value' = DIVIDE([Total Sales], [Total Orders], 0)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: Measure_AverageOrderValue
+
+	measure 'Sales PY' = CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Calendar'[Date]))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: Measure_SalesPY
+
+	measure 'Sales YoY Growth %' = DIVIDE([Total Sales] - [Sales PY], [Sales PY], 0)
+		formatString: +0.00%;-0.00%;0.00%
+		lineageTag: Measure_SalesYoYGrowth
+
+	measure 'Profit PY' = CALCULATE([Total Profit], SAMEPERIODLASTYEAR('Calendar'[Date]))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: Measure_ProfitPY
+
+	measure 'Profit YoY Growth %' = DIVIDE([Total Profit] - [Profit PY], [Profit PY], 0)
+		formatString: +0.00%;-0.00%;0.00%
+		lineageTag: Measure_ProfitYoYGrowth
+
+	column SalesOrderLineKey
+		dataType: int64
+		lineageTag: SalesOrderLineKey
+		summarizeBy: none
+		sourceColumn: SalesOrderLineKey
+
+	column ResellerKey
+		dataType: int64
+		lineageTag: ResellerKey
+		summarizeBy: none
+		sourceColumn: ResellerKey
+
+	column CustomerKey
+		dataType: int64
+		lineageTag: CustomerKey
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+	column ProductKey
+		dataType: int64
+		lineageTag: ProductKey
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column OrderDateKey
+		dataType: int64
+		lineageTag: OrderDateKey
+		summarizeBy: none
+		sourceColumn: OrderDateKey
+
+	column DueDateKey
+		dataType: int64
+		lineageTag: DueDateKey
+		summarizeBy: none
+		sourceColumn: DueDateKey
+
+	column ShipDateKey
+		dataType: int64
+		lineageTag: ShipDateKey
+		summarizeBy: none
+		sourceColumn: ShipDateKey
+
+	column SalesTerritoryKey
+		dataType: int64
+		lineageTag: SalesTerritoryKey
+		summarizeBy: none
+		sourceColumn: SalesTerritoryKey
+
+	column 'Order Quantity'
+		dataType: int64
+		lineageTag: OrderQuantity
+		summarizeBy: sum
+		sourceColumn: Order Quantity
+
+	column 'Unit Price'
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: UnitPrice
+		summarizeBy: average
+		sourceColumn: Unit Price
+
+	column 'Extended Amount'
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: ExtendedAmount
+		summarizeBy: sum
+		sourceColumn: Extended Amount
+
+	column 'Unit Price Discount Pct'
+		dataType: double
+		formatString: 0.00%
+		lineageTag: UnitPriceDiscountPct
+		summarizeBy: average
+		sourceColumn: Unit Price Discount Pct
+
+	column 'Product Standard Cost'
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: ProductStandardCost
+		summarizeBy: average
+		sourceColumn: Product Standard Cost
+
+	column 'Total Product Cost'
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: TotalProductCost
+		summarizeBy: sum
+		sourceColumn: Total Product Cost
+
+	column 'Sales Amount'
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: SalesAmount
+		summarizeBy: sum
+		sourceColumn: Sales Amount
+
+	partition FactSales = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Sales_Sheet = Source{[Item="Sales_data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sales_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
+				        {"SalesOrderLineKey", Int64.Type},
+				        {"ResellerKey", Int64.Type},
+				        {"CustomerKey", Int64.Type},
+				        {"ProductKey", Int64.Type},
+				        {"OrderDateKey", Int64.Type},
+				        {"DueDateKey", Int64.Type},
+				        {"ShipDateKey", Int64.Type},
+				        {"SalesTerritoryKey", Int64.Type},
+				        {"Order Quantity", Int64.Type},
+				        {"Unit Price", type number},
+				        {"Extended Amount", type number},
+				        {"Unit Price Discount Pct", type number},
+				        {"Product Standard Cost", type number},
+				        {"Total Product Cost", type number},
+				        {"Sales Amount", type number}
+				    })
+				in
+				    #"Changed Types"
+

@@ -1,0 +1,47 @@
+table DimSalesTerritory
+	lineageTag: DimSalesTerritory
+
+	column SalesTerritoryKey
+		dataType: int64
+		isKey
+		lineageTag: SalesTerritoryKey
+		summarizeBy: none
+		sourceColumn: SalesTerritoryKey
+
+	column Region
+		dataType: string
+		lineageTag: TerritoryRegion
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Country
+		dataType: string
+		lineageTag: TerritoryCountry
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+	column Group
+		dataType: string
+		lineageTag: TerritoryGroup
+		dataCategory: Continent
+		summarizeBy: none
+		sourceColumn: Group
+
+	partition DimSalesTerritory = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Territory_Sheet = Source{[Item="Sales Territory_data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Territory_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
+				        {"SalesTerritoryKey", Int64.Type},
+				        {"Region", type text},
+				        {"Country", type text},
+				        {"Group", type text}
+				    })
+				in
+				    #"Changed Types"
+

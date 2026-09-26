@@ -1,0 +1,53 @@
+name: Validate Power BI Repo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache uv tool store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/uv
+          key: uv-pbir-cli-${{ runner.os }}
+          restore-keys: |
+            uv-pbir-cli-${{ runner.os }}
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install pbir-cli (if supported)
+        run: |
+          if [ "${RUNNER_OS:-}" = "Linux" ] || [ "$(uname -s)" = "Linux" ]; then
+            echo "[INFO] Skipping pbir-cli install on Linux: upstream PyPI wheels support Windows and macOS only."
+            echo "[INFO] PBIR validation will run using the cross-platform scripts/validate_pbir_schema.py fallback."
+          else
+            uv tool install pbir-cli
+          fi
+
+      - name: Validate repo structure and JSON
+        run: python3 scripts/validate_repo.py
+
+      - name: Validate Calendar TMDL
+        run: python3 scripts/validate_date_table.py
+
+      - name: Validate PBIR JSON
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          bash scripts/validate_pbir.sh

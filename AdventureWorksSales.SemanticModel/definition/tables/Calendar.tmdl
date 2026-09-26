@@ -1,0 +1,111 @@
+table Calendar
+	lineageTag: Calendar
+	dataCategory: Time
+
+	column DateKey
+		dataType: int64
+		lineageTag: DateKey
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column Date
+		dataType: dateTime
+		isKey
+		lineageTag: Date
+		summarizeBy: none
+		sourceColumn: Date
+
+	column CalendarYear
+		dataType: int64
+		lineageTag: CalendarYear
+		summarizeBy: none
+		sourceColumn: CalendarYear
+
+	column CalendarMonthNumber
+		dataType: int64
+		lineageTag: CalendarMonthNumber
+		summarizeBy: none
+		sourceColumn: CalendarMonthNumber
+
+	column CalendarMonth
+		dataType: string
+		lineageTag: CalendarMonth
+		summarizeBy: none
+		sourceColumn: CalendarMonth
+		sortByColumn: CalendarMonthNumber
+
+	column DayOfWeek
+		dataType: string
+		lineageTag: DayOfWeek
+		summarizeBy: none
+		sourceColumn: DayOfWeek
+
+	column FiscalYear
+		dataType: int64
+		lineageTag: FiscalYear
+		summarizeBy: none
+		sourceColumn: FiscalYear
+
+	column FiscalYearLabel
+		dataType: string
+		lineageTag: FiscalYearLabel
+		summarizeBy: none
+		sourceColumn: FiscalYearLabel
+		sortByColumn: FiscalYear
+
+	column FiscalYearStartDate
+		dataType: dateTime
+		lineageTag: FiscalYearStartDate
+		summarizeBy: none
+		sourceColumn: FiscalYearStartDate
+
+	column FiscalWeekNumber
+		dataType: int64
+		lineageTag: FiscalWeekNumber
+		summarizeBy: none
+		sourceColumn: FiscalWeekNumber
+
+	column FiscalPeriodNumber
+		dataType: int64
+		lineageTag: FiscalPeriodNumber
+		summarizeBy: none
+		sourceColumn: FiscalPeriodNumber
+
+	column FiscalPeriodLabel
+		dataType: string
+		lineageTag: FiscalPeriodLabel
+		summarizeBy: none
+		sourceColumn: FiscalPeriodLabel
+		sortByColumn: FiscalPeriodNumber
+
+	column FiscalQuarterNumber
+		dataType: int64
+		lineageTag: FiscalQuarterNumber
+		summarizeBy: none
+		sourceColumn: FiscalQuarterNumber
+
+	column FiscalQuarter
+		dataType: string
+		lineageTag: FiscalQuarter
+		summarizeBy: none
+		sourceColumn: FiscalQuarter
+		sortByColumn: FiscalQuarterNumber
+
+	column FiscalWeekOfPeriod
+		dataType: int64
+		lineageTag: FiscalWeekOfPeriod
+		summarizeBy: none
+		sourceColumn: FiscalWeekOfPeriod
+
+	partition Calendar = m
+		mode: import
+		source =
+				let
+				    FiscalYearStartDate = #date(2017, 7, 1),
+				    WeekPattern         = "445",
+				    WeekStartDay        = "Saturday",
+				    NumberOfYears       = 4,
+				    Calendar            = fnCalendarWeekBased(FiscalYearStartDate, NumberOfYears, WeekPattern, WeekStartDay, "en-US")
+				in
+				    Calendar
+

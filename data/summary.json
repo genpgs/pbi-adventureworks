@@ -1,0 +1,449 @@
+{
+  "kpis": {
+    "total_sales": 109809274.2,
+    "total_cost": 97257907.95,
+    "total_profit": 12551366.25,
+    "margin_pct": 11.43,
+    "total_units": 274776,
+    "total_orders": 31455
+  },
+  "yearly": [
+    {
+      "fiscal_year": "FY2018",
+      "sales": 23860891.17,
+      "cost": 20824957.6,
+      "profit": 3035933.57,
+      "margin_pct": 12.72,
+      "units": 24349,
+      "orders": 3198
+    },
+    {
+      "fiscal_year": "FY2019",
+      "sales": 34070108.5,
+      "cost": 30362108.34,
+      "profit": 3708000.16,
+      "margin_pct": 10.88,
+      "units": 83339,
+      "orders": 4738
+    },
+    {
+      "fiscal_year": "FY2020",
+      "sales": 51878274.54,
+      "cost": 46070842.02,
+      "profit": 5807432.52,
+      "margin_pct": 11.19,
+      "units": 167088,
+      "orders": 23519
+    }
+  ],
+  "monthly": [
+    {
+      "month_key": 201707,
+      "month": "2017 Jul",
+      "sales": 1423357.32,
+      "profit": 393211.33,
+      "units": 1109
+    },
+    {
+      "month_key": 201708,
+      "month": "2017 Aug",
+      "sales": 2057902.45,
+      "profit": 276100.4,
+      "units": 2212
+    },
+    {
+      "month_key": 201709,
+      "month": "2017 Sep",
+      "sales": 2523947.55,
+      "profit": 291127.14,
+      "units": 2915
+    },
+    {
+      "month_key": 201710,
+      "month": "2017 Oct",
+      "sales": 561681.48,
+      "profit": 226029.55,
+      "units": 174
+    },
+    {
+      "month_key": 201711,
+      "month": "2017 Nov",
+      "sales": 4764920.16,
+      "profit": 454064.53,
+      "units": 5438
+    },
+    {
+      "month_key": 201712,
+      "month": "2017 Dec",
+      "sales": 596746.56,
+      "profit": 240320.91,
+      "units": 188
+    },
+    {
+      "month_key": 201801,
+      "month": "2018 Jan",
+      "sales": 1327674.63,
+      "profit": 267763.87,
+      "units": 1045
+    },
+    {
+      "month_key": 201802,
+      "month": "2018 Feb",
+      "sales": 3936463.31,
+      "profit": 362623.12,
+      "units": 3951
+    },
+    {
+      "month_key": 201803,
+      "month": "2018 Mar",
+      "sales": 700873.18,
+      "profit": 282033.77,
+      "units": 219
+    },
+    {
+      "month_key": 201804,
+      "month": "2018 Apr",
+      "sales": 1519275.24,
+      "profit": 285538.83,
+      "units": 1462
+    },
+    {
+      "month_key": 201805,
+      "month": "2018 May",
+      "sales": 2960378.09,
+      "profit": 366425.35,
+      "units": 3187
+    },
+    {
+      "month_key": 201806,
+      "month": "2018 Jun",
+      "sales": 1487671.19,
+      "profit": -409305.23,
+      "units": 2449
+    },
+    {
+      "month_key": 201807,
+      "month": "2018 Jul",
+      "sales": 2939691.0,
+      "profit": 277134.37,
+      "units": 7783
+    },
+    {
+      "month_key": 201808,
+      "month": "2018 Aug",
+      "sales": 3964801.2,
+      "profit": 279976.35,
+      "units": 11250
+    },
+    {
+      "month_key": 201809,
+      "month": "2018 Sep",
+      "sales": 3287605.93,
+      "profit": 316094.72,
+      "units": 9089
+    },
+    {
+      "month_key": 201810,
+      "month": "2018 Oct",
+      "sales": 2157287.4,
+      "profit": 222186.46,
+      "units": 5559
+    },
+    {
+      "month_key": 201811,
+      "month": "2018 Nov",
+      "sales": 3611092.23,
+      "profit": 367754.7,
+      "units": 8394
+    },
+    {
+      "month_key": 201812,
+      "month": "2018 Dec",
+      "sales": 2624078.39,
+      "profit": 295432.93,
+      "units": 6586
+    },
+    {
+      "month_key": 201901,
+      "month": "2019 Jan",
+      "sales": 1847691.91,
+      "profit": 272760.17,
+      "units": 3586
+    },
+    {
+      "month_key": 201902,
+      "month": "2019 Feb",
+      "sales": 2829361.64,
+      "profit": 263242.62,
+      "units": 5405
+    },
+    {
+      "month_key": 201903,
+      "month": "2019 Mar",
+      "sales": 2092434.35,
+      "profit": 288786.0,
+      "units": 4167
+    },
+    {
+      "month_key": 201904,
+      "month": "2019 Apr",
+      "sales": 2405970.99,
+      "profit": 311850.86,
+      "units": 5722
+    },
+    {
+      "month_key": 201905,
+      "month": "2019 May",
+      "sales": 3459444.04,
+      "profit": 359542.99,
+      "units": 8299
+    },
+    {
+      "month_key": 201906,
+      "month": "2019 Jun",
+      "sales": 2850649.42,
+      "profit": 453238.0,
+      "units": 7499
+    },
+    {
+      "month_key": 201907,
+      "month": "2019 Jul",
+      "sales": 3513064.05,
+      "profit": 171547.01,
+      "units": 13690
+    },
+    {
+      "month_key": 201908,
+      "month": "2019 Aug",
+      "sales": 5247165.33,
+      "profit": 179535.3,
+      "units": 19153
+    },
+    {
+      "month_key": 201909,
+      "month": "2019 Sep",
+      "sales": 5104087.93,
+      "profit": 161410.78,
+      "units": 18791
+    },
+    {
+      "month_key": 201910,
+      "month": "2019 Oct",
+      "sales": 3542149.58,
+      "profit": 518621.28,
+      "units": 11801
+    },
+    {
+      "month_key": 201911,
+      "month": "2019 Nov",
+      "sales": 5151896.58,
+      "profit": 708923.18,
+      "units": 15684
+    },
+    {
+      "month_key": 201912,
+      "month": "2019 Dec",
+      "sales": 4851193.68,
+      "profit": 585948.01,
+      "units": 15159
+    },
+    {
+      "month_key": 202001,
+      "month": "2020 Jan",
+      "sales": 3235187.23,
+      "profit": 654653.89,
+      "units": 9557
+    },
+    {
+      "month_key": 202002,
+      "month": "2020 Feb",
+      "sales": 4070045.89,
+      "profit": 579414.17,
+      "units": 10773
+    },
+    {
+      "month_key": 202003,
+      "month": "2020 Mar",
+      "sales": 4429832.53,
+      "profit": 702572.26,
+      "units": 11902
+    },
+    {
+      "month_key": 202004,
+      "month": "2020 Apr",
+      "sales": 4002614.35,
+      "profit": 751255.32,
+      "units": 12431
+    },
+    {
+      "month_key": 202005,
+      "month": "2020 May",
+      "sales": 5265796.68,
+      "profit": 781004.61,
+      "units": 15753
+    },
+    {
+      "month_key": 202006,
+      "month": "2020 Jun",
+      "sales": 3465240.69,
+      "profit": 12546.7,
+      "units": 12394
+    }
+  ],
+  "category": [
+    {
+      "category": "Bikes",
+      "sales": 94620526.21,
+      "profit": 10515096.61,
+      "margin_pct": 11.11,
+      "share_pct": 86.17
+    },
+    {
+      "category": "Components",
+      "sales": 11799076.66,
+      "profit": 1032966.48,
+      "margin_pct": 8.75,
+      "share_pct": 10.75
+    },
+    {
+      "category": "Clothing",
+      "sales": 2117613.45,
+      "profit": 368836.0,
+      "margin_pct": 17.42,
+      "share_pct": 1.93
+    },
+    {
+      "category": "Accessories",
+      "sales": 1272057.89,
+      "profit": 634467.16,
+      "margin_pct": 49.88,
+      "share_pct": 1.16
+    }
+  ],
+  "countries": [
+    {
+      "country": "United States",
+      "sales": 62997590.72,
+      "profit": 4444138.59,
+      "margin_pct": 7.05,
+      "share_pct": 57.37
+    },
+    {
+      "country": "Canada",
+      "sales": 16355770.46,
+      "profit": 1008148.59,
+      "margin_pct": 6.16,
+      "share_pct": 14.89
+    },
+    {
+      "country": "Australia",
+      "sales": 10655335.96,
+      "profit": 3577134.19,
+      "margin_pct": 33.57,
+      "share_pct": 9.7
+    },
+    {
+      "country": "United Kingdom",
+      "sales": 7670721.04,
+      "profit": 1396872.69,
+      "margin_pct": 18.21,
+      "share_pct": 6.99
+    },
+    {
+      "country": "France",
+      "sales": 7251555.65,
+      "profit": 1048955.12,
+      "margin_pct": 14.47,
+      "share_pct": 6.6
+    },
+    {
+      "country": "Germany",
+      "sales": 4878300.38,
+      "profit": 1076117.07,
+      "margin_pct": 22.06,
+      "share_pct": 4.44
+    }
+  ],
+  "top_products": [
+    {
+      "product": "Mountain-200 Black, 38",
+      "category": "Bikes",
+      "sales": 4400592.8,
+      "profit": 872822.12,
+      "margin_pct": 19.83,
+      "units": 2977
+    },
+    {
+      "product": "Mountain-200 Black, 42",
+      "category": "Bikes",
+      "sales": 4009494.76,
+      "profit": 863800.75,
+      "margin_pct": 21.54,
+      "units": 2664
+    },
+    {
+      "product": "Mountain-200 Silver, 38",
+      "category": "Bikes",
+      "sales": 3693678.03,
+      "profit": 829132.41,
+      "margin_pct": 22.45,
+      "units": 2394
+    },
+    {
+      "product": "Mountain-200 Silver, 42",
+      "category": "Bikes",
+      "sales": 3438478.86,
+      "profit": 775989.08,
+      "margin_pct": 22.57,
+      "units": 2234
+    },
+    {
+      "product": "Mountain-200 Silver, 46",
+      "category": "Bikes",
+      "sales": 3434256.94,
+      "profit": 793957.25,
+      "margin_pct": 23.12,
+      "units": 2216
+    },
+    {
+      "product": "Mountain-200 Black, 46",
+      "category": "Bikes",
+      "sales": 3309673.22,
+      "profit": 808088.34,
+      "margin_pct": 24.42,
+      "units": 2111
+    },
+    {
+      "product": "Road-250 Black, 44",
+      "category": "Bikes",
+      "sales": 2516857.31,
+      "profit": 169082.48,
+      "margin_pct": 6.72,
+      "units": 1642
+    },
+    {
+      "product": "Road-250 Black, 48",
+      "category": "Bikes",
+      "sales": 2347655.95,
+      "profit": 202241.32,
+      "margin_pct": 8.61,
+      "units": 1498
+    },
+    {
+      "product": "Road-250 Black, 52",
+      "category": "Bikes",
+      "sales": 2012447.77,
+      "profit": 235368.7,
+      "margin_pct": 11.7,
+      "units": 1245
+    },
+    {
+      "product": "Road-150 Red, 56",
+      "category": "Bikes",
+      "sales": 1847818.63,
+      "profit": 406079.28,
+      "margin_pct": 21.98,
+      "units": 664
+    }
+  ]
+}

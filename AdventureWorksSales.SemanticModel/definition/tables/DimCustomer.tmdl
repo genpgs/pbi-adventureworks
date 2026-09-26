@@ -1,0 +1,69 @@
+table DimCustomer
+	lineageTag: DimCustomer
+
+	column CustomerKey
+		dataType: int64
+		isKey
+		lineageTag: CustomerKey
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+	column 'Customer ID'
+		dataType: string
+		lineageTag: CustomerID
+		summarizeBy: none
+		sourceColumn: Customer ID
+
+	column Customer
+		dataType: string
+		lineageTag: CustomerName
+		summarizeBy: none
+		sourceColumn: Customer
+
+	column City
+		dataType: string
+		lineageTag: CustomerCity
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+	column State-Province
+		dataType: string
+		lineageTag: CustomerStateProvince
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: State-Province
+
+	column Country-Region
+		dataType: string
+		lineageTag: CustomerCountryRegion
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: Country-Region
+
+	column 'Postal Code'
+		dataType: string
+		lineageTag: CustomerPostalCode
+		dataCategory: PostalCode
+		summarizeBy: none
+		sourceColumn: Postal Code
+
+	partition DimCustomer = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Customer_Sheet = Source{[Item="Customer_data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Customer_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
+				        {"CustomerKey", Int64.Type},
+				        {"Customer ID", type text},
+				        {"Customer", type text},
+				        {"City", type text},
+				        {"State-Province", type text},
+				        {"Country-Region", type text},
+				        {"Postal Code", type text}
+				    })
+				in
+				    #"Changed Types"
+

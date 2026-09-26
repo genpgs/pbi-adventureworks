@@ -1,0 +1,721 @@
+<!-- Copied from artifact report-prototype.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdventureWorks Sales — Power BI Report Prototype</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --pbi-canvas-bg: #f8fafc;
+      --pbi-card-bg: #ffffff;
+      --pbi-accent: #2563eb;
+      --pbi-profit: #10b981;
+      --pbi-cost: #f59e0b;
+      --pbi-dark: #0f172a;
+      --pbi-text: #1e293b;
+      --pbi-muted: #64748b;
+      --pbi-border: #e2e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pbi-canvas-bg: #0f172a;
+        --pbi-card-bg: #1e293b;
+        --pbi-text: #f1f5f9;
+        --pbi-muted: #94a3b8;
+        --pbi-border: #334155;
+      }
+    }
+    body {
+      background-color: var(--pbi-canvas-bg);
+      color: var(--pbi-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .pbi-card {
+      background-color: var(--pbi-card-bg);
+      border: 1px solid var(--pbi-border);
+      border-radius: 8px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6 min-h-screen">
+  <div class="max-w-[1400px] mx-auto space-y-5">
+    
+    <!-- Top Bar: Title & Filter Controls -->
+    <header class="pbi-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-md">
+          AW
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight">AdventureWorks Sales Analytics</h1>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">PBIP / PBIR Prototype</span>
+          </div>
+          <p class="text-xs text-[var(--pbi-muted)]">Data Source: AdventureWorks Sales.xlsx | 4-4-5 Fiscal Calendar Pattern</p>
+        </div>
+      </div>
+
+      <!-- Navigation & Slicer Controls -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Page Nav -->
+        <div class="inline-flex rounded-lg border border-[var(--pbi-border)] bg-[var(--pbi-canvas-bg)] p-1 text-xs">
+          <button id="btn-page1" onclick="switchPage(1)" class="px-3 py-1.5 font-medium rounded-md bg-[var(--pbi-card-bg)] text-blue-600 dark:text-blue-400 shadow-sm transition">
+            1. Executive Overview
+          </button>
+          <button id="btn-page2" onclick="switchPage(2)" class="px-3 py-1.5 font-medium rounded-md text-[var(--pbi-muted)] hover:text-[var(--pbi-text)] transition">
+            2. Product & Territory Profitability
+          </button>
+        </div>
+
+        <!-- Fiscal Year Slicer -->
+        <div class="flex items-center gap-1.5">
+          <label class="text-xs font-semibold text-[var(--pbi-muted)]">Fiscal Year:</label>
+          <select id="fy-filter" onchange="filterData()" class="text-xs font-medium px-2.5 py-1.5 rounded-md border border-[var(--pbi-border)] bg-[var(--pbi-card-bg)] text-[var(--pbi-text)] shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="ALL">All Years (FY2018 - FY2020)</option>
+            <option value="FY2020">FY2020 (Latest)</option>
+            <option value="FY2019">FY2019</option>
+            <option value="FY2018">FY2018</option>
+          </select>
+        </div>
+
+        <!-- Spec Inspector Toggle -->
+        <button onclick="toggleSpecs()" class="px-3 py-1.5 text-xs font-medium rounded-md border border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          PBIR Spec
+        </button>
+      </div>
+    </header>
+
+    <!-- Collapsible PBIR Specs Inspector -->
+    <div id="specs-drawer" class="hidden pbi-card p-4 border-l-4 border-l-blue-500 space-y-3 bg-blue-50/50 dark:bg-blue-950/20">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-blue-900 dark:text-blue-300">📐 PBIR Canvas & Visual Layout Specifications</h3>
+        <span class="text-xs text-[var(--pbi-muted)]">Target Canvas: 1280 x 720 (16:9 Standard)</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+        <div class="bg-[var(--pbi-card-bg)] p-2.5 rounded border border-[var(--pbi-border)]">
+          <span class="font-semibold text-blue-600">Ribbon KPI Cards (x5)</span><br>
+          <code>Y: 15 | H: 95 | W: 240 each</code><br>
+          <span class="text-[var(--pbi-muted)]">Type: <code>card</code> / Visual Container</span>
+        </div>
+        <div class="bg-[var(--pbi-card-bg)] p-2.5 rounded border border-[var(--pbi-border)]">
+          <span class="font-semibold text-blue-600">Monthly Sales Trend</span><br>
+          <code>X: 20 | Y: 125 | W: 780 | H: 330</code><br>
+          <span class="text-[var(--pbi-muted)]">Type: <code>lineChart</code> / Area Combo</span>
+        </div>
+        <div class="bg-[var(--pbi-card-bg)] p-2.5 rounded border border-[var(--pbi-border)]">
+          <span class="font-semibold text-blue-600">Category Breakdown</span><br>
+          <code>X: 820 | Y: 125 | W: 440 | H: 330</code><br>
+          <span class="text-[var(--pbi-muted)]">Type: <code>barChart</code> (Horizontal)</span>
+        </div>
+        <div class="bg-[var(--pbi-card-bg)] p-2.5 rounded border border-[var(--pbi-border)]">
+          <span class="font-semibold text-blue-600">Country & Territory</span><br>
+          <code>X: 20 | Y: 470 | W: 600 | H: 235</code><br>
+          <span class="text-[var(--pbi-muted)]">Type: <code>clusteredBarChart</code></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 1: EXECUTIVE SALES OVERVIEW -->
+    <div id="page-1" class="space-y-5">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        <div class="pbi-card p-4 relative overflow-hidden border-t-4 border-t-blue-600">
+          <div class="flex items-center justify-between text-xs text-[var(--pbi-muted)] font-medium">
+            <span>TOTAL SALES</span>
+            <span class="text-emerald-600 font-semibold" id="kpi-sales-growth">+52.3% YoY</span>
+          </div>
+          <div class="mt-1.5 text-2xl font-bold tracking-tight" id="kpi-sales">$109.81M</div>
+          <div class="mt-1 text-[11px] text-[var(--pbi-muted)] flex items-center justify-between">
+            <span>Target: $100M</span>
+            <span class="text-blue-600 font-semibold">109.8%</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+            <div class="bg-blue-600 h-full rounded-full" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <div class="pbi-card p-4 relative overflow-hidden border-t-4 border-t-emerald-500">
+          <div class="flex items-center justify-between text-xs text-[var(--pbi-muted)] font-medium">
+            <span>TOTAL PROFIT</span>
+            <span class="text-emerald-600 font-semibold" id="kpi-profit-growth">+56.6% YoY</span>
+          </div>
+          <div class="mt-1.5 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400" id="kpi-profit">$12.55M</div>
+          <div class="mt-1 text-[11px] text-[var(--pbi-muted)] flex items-center justify-between">
+            <span>Gross Margin</span>
+            <span class="font-semibold text-emerald-600" id="kpi-margin-sub">11.43%</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+            <div class="bg-emerald-500 h-full rounded-full" style="width: 78%"></div>
+          </div>
+        </div>
+
+        <div class="pbi-card p-4 relative overflow-hidden border-t-4 border-t-amber-500">
+          <div class="flex items-center justify-between text-xs text-[var(--pbi-muted)] font-medium">
+            <span>TOTAL COST</span>
+            <span class="text-slate-500 font-semibold">COGS</span>
+          </div>
+          <div class="mt-1.5 text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400" id="kpi-cost">$97.26M</div>
+          <div class="mt-1 text-[11px] text-[var(--pbi-muted)] flex items-center justify-between">
+            <span>Cost of Sales</span>
+            <span class="font-semibold">88.57%</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+            <div class="bg-amber-500 h-full rounded-full" style="width: 88%"></div>
+          </div>
+        </div>
+
+        <div class="pbi-card p-4 relative overflow-hidden border-t-4 border-t-indigo-500">
+          <div class="flex items-center justify-between text-xs text-[var(--pbi-muted)] font-medium">
+            <span>UNITS SOLD</span>
+            <span class="text-emerald-600 font-semibold" id="kpi-units-growth">+100.5% YoY</span>
+          </div>
+          <div class="mt-1.5 text-2xl font-bold tracking-tight" id="kpi-units">274.8K</div>
+          <div class="mt-1 text-[11px] text-[var(--pbi-muted)] flex items-center justify-between">
+            <span>Avg Units / Order</span>
+            <span class="font-semibold">8.7</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+            <div class="bg-indigo-500 h-full rounded-full" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <div class="pbi-card p-4 relative overflow-hidden border-t-4 border-t-purple-500">
+          <div class="flex items-center justify-between text-xs text-[var(--pbi-muted)] font-medium">
+            <span>TOTAL ORDERS</span>
+            <span class="text-emerald-600 font-semibold" id="kpi-orders-growth">+396.4% YoY</span>
+          </div>
+          <div class="mt-1.5 text-2xl font-bold tracking-tight" id="kpi-orders">31,455</div>
+          <div class="mt-1 text-[11px] text-[var(--pbi-muted)] flex items-center justify-between">
+            <span>Avg Order Value</span>
+            <span class="font-semibold" id="kpi-aov">$3,491</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+            <div class="bg-purple-500 h-full rounded-full" style="width: 92%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Analytical Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-8 pbi-card p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--pbi-text)]">Revenue & Profit Monthly Trajectory</h2>
+              <p class="text-xs text-[var(--pbi-muted)]">Monthly Sales Revenue (blue) vs Gross Profit (green) in USD</p>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> Sales Revenue</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Gross Profit</span>
+            </div>
+          </div>
+
+          <div class="w-full overflow-x-auto">
+            <svg viewBox="0 0 760 230" class="w-full h-56 select-none font-sans text-[10px]">
+              <line x1="45" y1="20" x2="740" y2="20" stroke="currentColor" stroke-opacity="0.1" />
+              <line x1="45" y1="70" x2="740" y2="70" stroke="currentColor" stroke-opacity="0.1" />
+              <line x1="45" y1="120" x2="740" y2="120" stroke="currentColor" stroke-opacity="0.1" />
+              <line x1="45" y1="170" x2="740" y2="170" stroke="currentColor" stroke-opacity="0.1" />
+              <line x1="45" y1="200" x2="740" y2="200" stroke="currentColor" stroke-opacity="0.2" />
+
+              <text x="40" y="24" text-anchor="end" fill="currentColor" opacity="0.6">$8M</text>
+              <text x="40" y="74" text-anchor="end" fill="currentColor" opacity="0.6">$6M</text>
+              <text x="40" y="124" text-anchor="end" fill="currentColor" opacity="0.6">$4M</text>
+              <text x="40" y="174" text-anchor="end" fill="currentColor" opacity="0.6">$2M</text>
+              <text x="40" y="204" text-anchor="end" fill="currentColor" opacity="0.6">$0</text>
+
+              <defs>
+                <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#2563eb" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#2563eb" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+
+              <polygon points="55,200 55,165 95,148 135,137 175,185 215,81 255,185 295,166 335,101 375,182 415,95 455,178 495,162 535,142 575,120 615,85 655,75 695,45 735,38 735,200" fill="url(#salesGrad)" />
+              <polyline points="55,165 95,148 135,137 175,185 215,81 255,185 295,166 335,101 375,182 415,95 455,178 495,162 535,142 575,120 615,85 655,75 695,45 735,38" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+              <polyline points="55,190 95,193 135,192 175,194 215,188 255,194 295,193 335,191 375,193 415,189 455,193 495,191 535,188 575,182 615,175 655,172 695,160 735,155" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+              <circle cx="215" cy="81" r="3.5" fill="#2563eb" />
+              <circle cx="695" cy="45" r="3.5" fill="#2563eb" />
+              <circle cx="735" cy="38" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="2" />
+
+              <text x="55" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Jul 17</text>
+              <text x="135" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Sep 17</text>
+              <text x="215" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Nov 17</text>
+              <text x="295" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Jan 18</text>
+              <text x="375" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Mar 18</text>
+              <text x="455" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">May 18</text>
+              <text x="535" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Jan 19</text>
+              <text x="615" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Jul 19</text>
+              <text x="695" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Jan 20</text>
+              <text x="735" y="218" text-anchor="middle" fill="currentColor" opacity="0.7">Jun 20</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 pbi-card p-5 space-y-4">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--pbi-text)]">Category Revenue Share</h2>
+            <p class="text-xs text-[var(--pbi-muted)]">Sales amount and margin % by category</p>
+          </div>
+
+          <div class="space-y-3.5">
+            <div>
+              <div class="flex justify-between text-xs font-semibold">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-blue-600"></span> Bikes</span>
+                <span>$94.62M <span class="text-emerald-600 font-bold ml-1">(11.2%)</span></span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full mt-1.5 overflow-hidden">
+                <div class="bg-blue-600 h-full rounded-full" style="width: 86.2%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-[var(--pbi-muted)] mt-0.5">
+                <span>86.2% share</span>
+                <span>$10.59M profit</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-indigo-500"></span> Components</span>
+                <span>$11.80M <span class="text-emerald-600 font-bold ml-1">(11.8%)</span></span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full mt-1.5 overflow-hidden">
+                <div class="bg-indigo-500 h-full rounded-full" style="width: 10.7%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-[var(--pbi-muted)] mt-0.5">
+                <span>10.7% share</span>
+                <span>$1.39M profit</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> Clothing</span>
+                <span>$2.12M <span class="text-emerald-600 font-bold ml-1">(18.3%)</span></span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full mt-1.5 overflow-hidden">
+                <div class="bg-amber-500 h-full rounded-full" style="width: 1.9%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-[var(--pbi-muted)] mt-0.5">
+                <span>1.9% share</span>
+                <span>$388K profit</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-teal-500"></span> Accessories</span>
+                <span>$1.27M <span class="text-emerald-600 font-bold ml-1">(13.8%)</span></span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full mt-1.5 overflow-hidden">
+                <div class="bg-teal-500 h-full rounded-full" style="width: 1.2%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-[var(--pbi-muted)] mt-0.5">
+                <span>1.2% share</span>
+                <span>$175K profit</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[var(--pbi-border)]">
+            <span class="text-xs font-bold uppercase text-[var(--pbi-muted)]">Channel Mix</span>
+            <div class="mt-2 flex h-3 w-full rounded-full overflow-hidden">
+              <div class="bg-blue-600" style="width: 73.3%" title="Reseller: 73.3%"></div>
+              <div class="bg-emerald-500" style="width: 26.7%" title="Internet: 26.7%"></div>
+            </div>
+            <div class="mt-1.5 flex justify-between text-xs">
+              <span class="text-blue-600 font-medium">● Reseller: $80.45M (73%)</span>
+              <span class="text-emerald-600 font-medium">● Internet: $29.36M (27%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Country Matrix & Fiscal Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 pbi-card p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--pbi-text)]">Geographic Revenue by Country</h2>
+            <span class="text-xs text-[var(--pbi-muted)]">6 Territories</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="text-[var(--pbi-muted)] border-b border-[var(--pbi-border)]">
+                <tr>
+                  <th class="pb-2 font-semibold">Country</th>
+                  <th class="pb-2 font-semibold text-right">Sales Revenue</th>
+                  <th class="pb-2 font-semibold text-right">Share</th>
+                  <th class="pb-2 font-semibold text-right">Gross Profit</th>
+                  <th class="pb-2 font-semibold text-right">Margin</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--pbi-border)]">
+                <tr>
+                  <td class="py-2 font-medium">🇺🇸 United States</td>
+                  <td class="py-2 text-right font-bold">$63.00M</td>
+                  <td class="py-2 text-right text-[var(--pbi-muted)]">57.4%</td>
+                  <td class="py-2 text-right text-emerald-600 font-semibold">$7.24M</td>
+                  <td class="py-2 text-right">11.49%</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-medium">🇨🇦 Canada</td>
+                  <td class="py-2 text-right font-bold">$16.36M</td>
+                  <td class="py-2 text-right text-[var(--pbi-muted)]">14.9%</td>
+                  <td class="py-2 text-right text-emerald-600 font-semibold">$1.87M</td>
+                  <td class="py-2 text-right">11.43%</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-medium">🇦🇺 Australia</td>
+                  <td class="py-2 text-right font-bold">$10.66M</td>
+                  <td class="py-2 text-right text-[var(--pbi-muted)]">9.7%</td>
+                  <td class="py-2 text-right text-emerald-600 font-semibold">$1.21M</td>
+                  <td class="py-2 text-right">11.35%</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-medium">🇬🇧 United Kingdom</td>
+                  <td class="py-2 text-right font-bold">$7.67M</td>
+                  <td class="py-2 text-right text-[var(--pbi-muted)]">7.0%</td>
+                  <td class="py-2 text-right text-emerald-600 font-semibold">$876K</td>
+                  <td class="py-2 text-right">11.42%</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-medium">🇫🇷 France</td>
+                  <td class="py-2 text-right font-bold">$7.25M</td>
+                  <td class="py-2 text-right text-[var(--pbi-muted)]">6.6%</td>
+                  <td class="py-2 text-right text-emerald-600 font-semibold">$828K</td>
+                  <td class="py-2 text-right">11.42%</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-medium">🇩🇪 Germany</td>
+                  <td class="py-2 text-right font-bold">$4.88M</td>
+                  <td class="py-2 text-right text-[var(--pbi-muted)]">4.4%</td>
+                  <td class="py-2 text-right text-emerald-600 font-semibold">$558K</td>
+                  <td class="py-2 text-right">11.44%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 pbi-card p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--pbi-text)]">Annual Growth Trajectory</h2>
+            <span class="text-xs text-blue-600 font-semibold">4-4-5 Calendar</span>
+          </div>
+
+          <div class="space-y-3">
+            <div class="p-3 rounded-lg border border-[var(--pbi-border)] bg-[var(--pbi-canvas-bg)] flex items-center justify-between">
+              <div>
+                <span class="text-xs text-[var(--pbi-muted)] font-semibold">FY2018 (Baseline)</span>
+                <div class="text-lg font-bold">$23.86M</div>
+                <div class="text-[11px] text-[var(--pbi-muted)]">24,349 units · 3,198 orders</div>
+              </div>
+              <div class="text-right">
+                <span class="px-2 py-0.5 text-xs font-bold rounded bg-slate-200 dark:bg-slate-700">12.72% Margin</span>
+                <div class="text-xs text-emerald-600 font-bold mt-1.5">$3.04M Profit</div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg border border-[var(--pbi-border)] bg-[var(--pbi-canvas-bg)] flex items-center justify-between">
+              <div>
+                <span class="text-xs text-[var(--pbi-muted)] font-semibold">FY2019</span>
+                <div class="text-lg font-bold">$34.07M</div>
+                <div class="text-[11px] text-emerald-600 font-semibold">▲ +42.8% YoY</div>
+              </div>
+              <div class="text-right">
+                <span class="px-2 py-0.5 text-xs font-bold rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">10.88% Margin</span>
+                <div class="text-xs text-emerald-600 font-bold mt-1.5">$3.71M Profit</div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg border-2 border-blue-500 bg-blue-50/30 dark:bg-blue-950/20 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-blue-600 font-semibold">FY2020 (Peak Year)</span>
+                <div class="text-lg font-bold text-blue-600 dark:text-blue-400">$51.88M</div>
+                <div class="text-[11px] text-emerald-600 font-semibold">▲ +52.3% YoY</div>
+              </div>
+              <div class="text-right">
+                <span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">11.19% Margin</span>
+                <div class="text-xs text-emerald-600 font-bold mt-1.5">$5.81M Profit</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: PRODUCT & PROFITABILITY CANVAS -->
+    <div id="page-2" class="hidden space-y-5">
+      <div class="pbi-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--pbi-text)]">Top 10 Products by Total Revenue</h2>
+            <p class="text-xs text-[var(--pbi-muted)]">Detailed sales, product cost, units sold, and gross margin contribution</p>
+          </div>
+          <span class="px-2.5 py-1 text-xs font-semibold rounded bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">Bikes dominate top tier</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="text-[var(--pbi-muted)] border-b border-[var(--pbi-border)]">
+              <tr>
+                <th class="pb-2.5 font-semibold">#</th>
+                <th class="pb-2.5 font-semibold">Product Name</th>
+                <th class="pb-2.5 font-semibold">Category</th>
+                <th class="pb-2.5 font-semibold text-right">Units Sold</th>
+                <th class="pb-2.5 font-semibold text-right">Total Revenue</th>
+                <th class="pb-2.5 font-semibold text-right">Gross Profit</th>
+                <th class="pb-2.5 font-semibold text-right">Margin %</th>
+                <th class="pb-2.5 font-semibold text-center w-36">Revenue Contribution</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--pbi-border)]">
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">1</td>
+                <td class="py-2.5 font-medium">Mountain-200 Black, 38</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">2,887</td>
+                <td class="py-2.5 text-right font-bold">$4,166,485</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$488,485</td>
+                <td class="py-2.5 text-right">11.72%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 100%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">2</td>
+                <td class="py-2.5 font-medium">Mountain-200 Black, 42</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">2,612</td>
+                <td class="py-2.5 text-right font-bold">$3,770,050</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$442,015</td>
+                <td class="py-2.5 text-right">11.72%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 90%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">3</td>
+                <td class="py-2.5 font-medium">Mountain-200 Silver, 38</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">2,448</td>
+                <td class="py-2.5 text-right font-bold">$3,533,398</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$414,260</td>
+                <td class="py-2.5 text-right">11.72%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 85%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">4</td>
+                <td class="py-2.5 font-medium">Mountain-200 Black, 46</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">2,389</td>
+                <td class="py-2.5 text-right font-bold">$3,448,223</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$404,280</td>
+                <td class="py-2.5 text-right">11.72%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 83%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">5</td>
+                <td class="py-2.5 font-medium">Mountain-200 Silver, 42</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">2,330</td>
+                <td class="py-2.5 text-right font-bold">$3,363,048</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$394,300</td>
+                <td class="py-2.5 text-right">11.72%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 81%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">6</td>
+                <td class="py-2.5 font-medium">Mountain-200 Silver, 46</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">2,076</td>
+                <td class="py-2.5 text-right font-bold">$2,996,449</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$351,310</td>
+                <td class="py-2.5 text-right">11.72%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 72%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">7</td>
+                <td class="py-2.5 font-medium">Road-250 Black, 44</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">1,720</td>
+                <td class="py-2.5 text-right font-bold">$2,873,420</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$308,240</td>
+                <td class="py-2.5 text-right">10.73%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 69%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">8</td>
+                <td class="py-2.5 font-medium">Road-250 Black, 48</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">1,625</td>
+                <td class="py-2.5 text-right font-bold">$2,714,680</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$291,220</td>
+                <td class="py-2.5 text-right">10.73%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 65%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">9</td>
+                <td class="py-2.5 font-medium">Road-250 Black, 52</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">1,580</td>
+                <td class="py-2.5 text-right font-bold">$2,639,530</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$283,160</td>
+                <td class="py-2.5 text-right">10.73%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 63%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-blue-600">10</td>
+                <td class="py-2.5 font-medium">Road-250 Red, 44</td>
+                <td class="py-2.5 text-[var(--pbi-muted)]">Bikes</td>
+                <td class="py-2.5 text-right font-medium">1,520</td>
+                <td class="py-2.5 text-right font-bold">$2,539,320</td>
+                <td class="py-2.5 text-right text-emerald-600 font-semibold">$272,410</td>
+                <td class="py-2.5 text-right">10.73%</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full" style="width: 61%"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="pbi-card p-4 space-y-2">
+          <span class="text-xs font-semibold text-blue-600">HIGHEST MARGIN CATEGORY</span>
+          <div class="text-xl font-bold">Clothing (18.3%)</div>
+          <p class="text-xs text-[var(--pbi-muted)]">Although clothing represents only 1.9% of total sales volume ($2.12M), it produces the highest gross margin rate across all product lines.</p>
+        </div>
+        <div class="pbi-card p-4 space-y-2">
+          <span class="text-xs font-semibold text-indigo-600">CORE REVENUE ENGINE</span>
+          <div class="text-xl font-bold">Mountain-200 Series</div>
+          <p class="text-xs text-[var(--pbi-muted)]">Mountain-200 frames across all sizes account for over $21.2M in sales revenue (~19.3% of total company revenue) with consistent 11.72% margin.</p>
+        </div>
+        <div class="pbi-card p-4 space-y-2">
+          <span class="text-xs font-semibold text-emerald-600">GEOGRAPHIC DOMINANCE</span>
+          <div class="text-xl font-bold">North America (72.3%)</div>
+          <p class="text-xs text-[var(--pbi-muted)]">US ($63.0M) and Canada ($16.4M) combined drive nearly three-quarters of global enterprise revenue, followed by Australia at 9.7%.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="pbi-card p-4 text-xs text-[var(--pbi-muted)] flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <span>Theme: <strong>Power BI Default Clean Blue / Segoe UI</strong> | WCAG 2.1 AA Compliant</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>TMDL Tables: <code>FactSales</code>, <code>DimProduct</code>, <code>DimCustomer</code>, <code>DimTerritory</code>, <code>Calendar</code></span>
+        <span>Measures: 8 Core DAX</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    const dataByYear = {
+      "ALL": {
+        sales: "$109.81M", profit: "$12.55M", cost: "$97.26M", units: "274.8K", orders: "31,455",
+        growthSales: "+52.3% YoY", growthProfit: "+56.6% YoY", growthUnits: "+100.5% YoY", growthOrders: "+396.4% YoY",
+        marginSub: "11.43%", aov: "$3,491"
+      },
+      "FY2020": {
+        sales: "$51.88M", profit: "$5.81M", cost: "$46.07M", units: "167.1K", orders: "23,519",
+        growthSales: "+52.3% YoY", growthProfit: "+56.6% YoY", growthUnits: "+100.5% YoY", growthOrders: "+396.4% YoY",
+        marginSub: "11.19%", aov: "$2,206"
+      },
+      "FY2019": {
+        sales: "$34.07M", profit: "$3.71M", cost: "$30.36M", units: "83.3K", orders: "4,738",
+        growthSales: "+42.8% YoY", growthProfit: "+22.1% YoY", growthUnits: "+242.3% YoY", growthOrders: "+48.2% YoY",
+        marginSub: "10.88%", aov: "$7,191"
+      },
+      "FY2018": {
+        sales: "$23.86M", profit: "$3.04M", cost: "$20.82M", units: "24.3K", orders: "3,198",
+        growthSales: "Baseline", growthProfit: "Baseline", growthUnits: "Baseline", growthOrders: "Baseline",
+        marginSub: "12.72%", aov: "$7,461"
+      }
+    };
+
+    function switchPage(pageNumber) {
+      const p1 = document.getElementById("page-1");
+      const p2 = document.getElementById("page-2");
+      const b1 = document.getElementById("btn-page1");
+      const b2 = document.getElementById("btn-page2");
+
+      if (pageNumber === 1) {
+        p1.classList.remove("hidden");
+        p2.classList.add("hidden");
+        b1.className = "px-3 py-1.5 font-medium rounded-md bg-[var(--pbi-card-bg)] text-blue-600 dark:text-blue-400 shadow-sm transition";
+        b2.className = "px-3 py-1.5 font-medium rounded-md text-[var(--pbi-muted)] hover:text-[var(--pbi-text)] transition";
+      } else {
+        p1.classList.add("hidden");
+        p2.classList.remove("hidden");
+        b2.className = "px-3 py-1.5 font-medium rounded-md bg-[var(--pbi-card-bg)] text-blue-600 dark:text-blue-400 shadow-sm transition";
+        b1.className = "px-3 py-1.5 font-medium rounded-md text-[var(--pbi-muted)] hover:text-[var(--pbi-text)] transition";
+      }
+    }
+
+    function filterData() {
+      const year = document.getElementById("fy-filter").value;
+      const d = dataByYear[year] || dataByYear["ALL"];
+
+      document.getElementById("kpi-sales").innerText = d.sales;
+      document.getElementById("kpi-profit").innerText = d.profit;
+      document.getElementById("kpi-cost").innerText = d.cost;
+      document.getElementById("kpi-units").innerText = d.units;
+      document.getElementById("kpi-orders").innerText = d.orders;
+
+      document.getElementById("kpi-sales-growth").innerText = d.growthSales;
+      document.getElementById("kpi-profit-growth").innerText = d.growthProfit;
+      document.getElementById("kpi-units-growth").innerText = d.growthUnits;
+      document.getElementById("kpi-orders-growth").innerText = d.growthOrders;
+      document.getElementById("kpi-margin-sub").innerText = d.marginSub;
+      document.getElementById("kpi-aov").innerText = d.aov;
+    }
+
+    function toggleSpecs() {
+      const drawer = document.getElementById("specs-drawer");
+      drawer.classList.toggle("hidden");
+    }
+  </script>
+</body>
+</html>

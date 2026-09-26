@@ -1,0 +1,20 @@
+relationship Rel_FactSales_Calendar
+	fromColumn: FactSales.OrderDateKey
+	toColumn: Calendar.DateKey
+
+relationship Rel_FactSales_DimProduct
+	fromColumn: FactSales.ProductKey
+	toColumn: DimProduct.ProductKey
+
+relationship Rel_FactSales_DimCustomer
+	fromColumn: FactSales.CustomerKey
+	toColumn: DimCustomer.CustomerKey
+
+relationship Rel_FactSales_DimSalesTerritory
+	fromColumn: FactSales.SalesTerritoryKey
+	toColumn: DimSalesTerritory.SalesTerritoryKey
+
+relationship Rel_FactSales_DimSalesOrder
+	fromColumn: FactSales.SalesOrderLineKey
+	toColumn: DimSalesOrder.SalesOrderLineKey
+
