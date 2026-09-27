@@ -15,8 +15,11 @@ Follow [`.github/instructions/powerbi-development.instructions.md`](./../instruc
 **Checklist before returning GO**:
 1. All four validation scripts pass (`validate_repo.py`, `validate_date_table.py`, `validate_m_expressions.py`, `validate_pbir.sh`)
 2. No `.env`, secrets, or `.pbix` files staged
-3. Power BI Desktop rendering evidence provided
-4. DAX `validate-calendar.dax` shows `ValidationPassed = TRUE`
-5. Rollback plan exists (prior PBIP commit or workspace backup)
+3. No generated/per-machine state staged — `.pbi/`, `diagramLayout.json`, `.vscode/`, or `PBIP_STRUCTURE_COMPARISON_REPORT.md`
+4. Every local-file partition resolves its path through the `BasePath` parameter, not a bare relative path
+5. Power BI Desktop rendering evidence provided
+6. Generated PBIR/TMDL survives a Desktop round-trip unchanged in substance — Desktop dropping a property means it was never honoured (see GAP-09)
+7. DAX `validate-calendar.dax` shows `ValidationPassed = TRUE`
+8. Rollback plan exists (prior PBIP commit or workspace backup)
 
 Return exactly one of: **GO** / **CONDITIONAL GO** (list conditions) / **NO-GO** (list blockers).

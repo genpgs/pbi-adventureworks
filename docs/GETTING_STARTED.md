@@ -67,6 +67,22 @@ FISCAL_NUMBER_OF_YEARS=5
 
 > `.env` is gitignored — never commit it.
 
+### What else is gitignored, and why
+
+`.gitignore` deliberately excludes four categories of generated or per-machine state. None of
+them are definition data, so excluding them keeps diffs limited to real model/report changes.
+
+| Pattern | Why it is excluded |
+|---|---|
+| `**/.pbi/` | The whole folder is per-user runtime state that Desktop regenerates (`localSettings.json`, `cache.abf`, `editorSettings.json`, pending-query state). It contains machine-specific paths and a large binary cache. |
+| `**/diagramLayout.json`, `**/semanticModelDiagramLayout.json` | Diagram positions are Desktop state, not definition. They rewrite on nearly every save, which would bury real changes in diff noise. |
+| `.vscode/`, `.idea/` | Editor-specific workspace preferences. |
+| `PBIP_STRUCTURE_COMPARISON_REPORT.md` | Regenerable audit output, not a source file. |
+
+> **Note on `.pbi/editorSettings.json`**: the PBIP skill lists it as committable, but this repo
+> ignores it along with the rest of `.pbi/`. It is regenerated on demand, so nothing is lost —
+> and ignoring the whole tree avoids re-discovering stray files one at a time.
+
 ---
 
 ## 5. Configure the fiscal calendar
@@ -85,6 +101,32 @@ Edit [`config/fiscal-calendar.json`](../config/fiscal-calendar.json) to match yo
 Then update the Calendar partition in the sample PBIP (`CalendarBaseline.SemanticModel/definition/tables/Calendar.tmdl`) to pass the same values to `fnCalendarWeekBased`.
 
 See [`docs/fiscal-calendar.md`](fiscal-calendar.md) for full pattern documentation.
+
+---
+
+## 5b. Point partitions at your data files
+
+A partition that reads a local file must **not** use a bare relative path. `File.Contents`
+resolves relative paths against the M engine's working directory rather than the PBIP root, so
+a path that looks project-relative fails on refresh. Declare a parameter and concatenate.
+
+In `<Model>.SemanticModel/definition/expressions.tmdl`:
+
+```tmdl
+expression BasePath = "E:\01-Projects\PBI-Automation\PBI-Adventureworks\" meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=true]
+	lineageTag: f4622c3a-d94b-4a8f-b485-aba488849cac
+```
+
+Then in each partition's `source =` block:
+
+```m
+Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
+```
+
+`IsParameterQuery=true` is what makes Desktop expose `BasePath` as an editable parameter in the
+Queries pane, so each machine can repoint it without editing TMDL. For a repo cloned across
+machines, author a placeholder value and have each developer set it once. This is GAP-08 in
+[`LINUX_WORKFLOW_GAPS.md`](LINUX_WORKFLOW_GAPS.md).
 
 ---
 

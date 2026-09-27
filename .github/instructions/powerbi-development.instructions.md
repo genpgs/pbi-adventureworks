@@ -21,6 +21,9 @@ Common reference docs (referenced by skills): `.agents/common/COMMON-CORE.md`, `
 - **Plan before editing.** Never work directly on `main`.
 - **Never invent schema objects**, workspace GUIDs, or data values.
 - **Never expose secrets or credentials** — use `.env` (gitignored) or CI secrets only.
+- **Never commit generated or per-machine state** — `.pbi/`, `diagramLayout.json`, `.vscode/`, and audit reports are gitignored.
+- **Never hand-add speculative root-level properties to PBIR JSON** — Desktop drops unrecognised properties on save (e.g. `layoutOptimization`). Desktop output is canonical; verify by one round-trip through Desktop.
+- **Never use bare relative paths in `File.Contents`** — declare a `BasePath` parameter (`IsParameterQuery=true`) and concatenate. See `docs/GETTING_STARTED.md` §5b.
 - **Never write to production** — publish only after the release-reviewer returns GO.
 - **Never claim visual correctness** without rendering evidence from Power BI Desktop.
 - **Before nontrivial DAX, time-intelligence, or M work**: consult `.github/instructions/reference-resources.instructions.md` and record references used.

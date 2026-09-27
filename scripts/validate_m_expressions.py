@@ -10,6 +10,7 @@ the terminating `in` expression, and file encoding hygiene.
 Usage: python3 scripts/validate_m_expressions.py [path-to-.SemanticModel ...]
 """
 
+import re
 import sys
 from pathlib import Path
 
@@ -149,6 +150,35 @@ def resolve_tmdl(target):
     return None
 
 
+def check_file_paths(tables_dir):
+    """GAP-08: a bare relative File.Contents path does not resolve against the PBIP root.
+
+    File.Contents resolves relative paths against the M engine's working directory, not
+    the project folder, so File.Contents("data/x.xlsx") fails on refresh. The path must
+    be built from a parameter (the convention here is `BasePath & "data/x.xlsx"`).
+    """
+    errors = []
+    if not tables_dir.is_dir():
+        return errors
+
+    # Reuse the string-scanning state machine rather than a bare substring match, so a
+    # path inside a comment or a string literal in a // comment is not misread as code.
+    literal = re.compile(r"""File\.Contents\(\s*["']([^"']*)["']""", re.IGNORECASE)
+    for table_file in sorted(tables_dir.glob("*.tmdl")):
+        for line_no, line in enumerate(table_file.read_text(encoding="utf-8").splitlines(), 1):
+            code = line.split("//", 1)[0]
+            for path in literal.findall(code):
+                if not path or re.match(r"^[A-Za-z]:[\\/]|^\\\\|^/", path):
+                    continue  # absolute path - fine
+                if not re.match(r"^[A-Za-z_]\w*\s*(&|\+)", code.strip()) and "&" not in code and "+" not in code:
+                    errors.append(
+                        f"{table_file.name}: line {line_no}: File.Contents(\"{path}\") uses a "
+                        f"bare relative path, which does not resolve against the PBIP root; "
+                        f"build it from a parameter, e.g. BasePath & \"{path}\" (GAP-08)"
+                    )
+    return errors
+
+
 def main(argv):
     if len(argv) > 1:
         targets = [Path(a) for a in argv[1:]]
@@ -196,6 +226,19 @@ def main(argv):
                     print(f"       {err}")
             else:
                 print(f"[PASS] {name} - {len(body)} lines, delimiters balanced, 'in' well formed")
+
+        # GAP-08: partition source blocks in the sibling tables/ folder.
+        tables_dir = tmdl.parent / "tables"
+        if tables_dir.is_dir():
+            path_errors = check_file_paths(tables_dir)
+            if path_errors:
+                total_errors.extend(path_errors)
+                print("[FAIL] partition file paths")
+                for err in path_errors:
+                    print(f"       {err}")
+            else:
+                print(f"[PASS] {len(list(tables_dir.glob('*.tmdl')))} table(s) - "
+                      f"no bare relative File.Contents paths")
 
     print()
     if total_errors:
