@@ -93,8 +93,9 @@ See [`docs/fiscal-calendar.md`](fiscal-calendar.md) for full pattern documentati
 From the repo root:
 
 ```bash
-python3 scripts/validate_repo.py        # structure, JSON, required files
-python3 scripts/validate_date_table.py  # Calendar TMDL columns for your pattern
+python3 scripts/validate_repo.py          # structure, JSON, required files
+python3 scripts/validate_date_table.py    # Calendar TMDL columns for your pattern
+python3 scripts/validate_m_expressions.py # M bodies in expressions.tmdl
 bash scripts/validate_pbir.sh           # PBIR JSON (requires pbir-cli)
 ```
 

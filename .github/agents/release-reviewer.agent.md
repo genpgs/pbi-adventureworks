@@ -13,7 +13,7 @@ Before reviewing a release, load both skill files:
 Follow [`.github/instructions/powerbi-development.instructions.md`](./../instructions/powerbi-development.instructions.md).
 
 **Checklist before returning GO**:
-1. All three validation scripts pass (`validate_repo.py`, `validate_date_table.py`, `validate_pbir.sh`)
+1. All four validation scripts pass (`validate_repo.py`, `validate_date_table.py`, `validate_m_expressions.py`, `validate_pbir.sh`)
 2. No `.env`, secrets, or `.pbix` files staged
 3. Power BI Desktop rendering evidence provided
 4. DAX `validate-calendar.dax` shows `ValidationPassed = TRUE`

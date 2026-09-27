@@ -35,5 +35,6 @@ Always run before committing:
 ```bash
 python3 scripts/validate_repo.py
 python3 scripts/validate_date_table.py
+python3 scripts/validate_m_expressions.py
 bash scripts/validate_pbir.sh
 ```

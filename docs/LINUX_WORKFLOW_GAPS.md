@@ -10,7 +10,7 @@ The `powerbi-dev-template` repository aims to provide a **"Linux-first, agent-ag
 
 During real-world end-to-end testing on Linux (Ubuntu / x86_64, Python 3.13, Node.js 20), we created a full project (`AdventureWorksSales.pbip` containing `AdventureWorksSales.SemanticModel` and `AdventureWorksSales.Report`), built an interactive HTML prototype (`report-prototype.html`), authored 6 TMDL tables, 11 DAX measures, 5 relationships, and 11 PBIR visuals across 2 report pages.
 
-We identified **6 concrete breakages / gaps** that affect developers and automated agent harnesses running on Linux:
+We identified **7 concrete breakages / gaps** that affect developers and automated agent harnesses running on Linux:
 
 | Gap ID | Component | Severity | Description | Status & Fix |
 |---|---|---|---|---|
@@ -20,6 +20,7 @@ We identified **6 concrete breakages / gaps** that affect developers and automat
 | **GAP-04** | `scripts/validate_repo.py` | **Medium** | Fails with `[FAIL] .env file found` if `.env` exists on disk (`check(not Path(".env").exists())`), directly contradicting `setup.sh` which copies `.env.example` -> `.env`. | **Fixed in Repo**: Changed check to verify `.env` is not tracked in git (`git ls-files .env`). |
 | **GAP-05** | Validation Scope | **Medium** | `validate_repo.py`, `validate_date_table.py`, and `validate_pbir.sh` hardcode `samples/pbip-calendar-baseline/` instead of validating any `.pbip` project in the workspace. | **Fixed in Repo**: Scans all `*.pbip` projects across the repo dynamically. |
 | **GAP-06** | Headless Linux Lifecycle | **Architecture** | Linux cannot execute Power BI Desktop GUI or refresh local M partitions into VertiPaq memory offline. | **Documented**: Clarified the code-first authoring vs rendering/refresh boundary. |
+| **GAP-07** | `expressions.tmdl` M bodies | **Critical** | TMDL stores `expression` bodies as opaque strings, so a syntactically invalid M body (e.g. a trailing `;` on the `in` expression) passes TMDL import and every Python schema validator, then blocks the project in Power BI Desktop. | **Fixed in Repo**: Added `scripts/validate_m_expressions.py` to the pre-commit validation set. |
 
 ---
 
@@ -156,6 +157,38 @@ We identified **6 concrete breakages / gaps** that affect developers and automat
     - Direct `.pbip` desktop GUI interactivity.
 - **Recommended Template PR**:
   Add an architecture section to `README.md` clarifying this distinction so developers understand that Linux is the **code-first authoring, scripting, and CI/CD plane**, while Desktop/Fabric is the **data refresh and rendering plane**.
+
+### GAP-07: Malformed M in `expressions.tmdl` Passes Every Structural Validator
+
+- **Symptom**: A hand-authored or generated PBIP imports cleanly through the TMDL folder
+  importer and through `validate_repo.py` / `validate_date_table.py` / `validate_pbir_schema.py`,
+  but Power BI Desktop fails to open it with:
+
+  ```
+  Syntax error in expression 'fnCalendar'. Token Identifier expected.
+  Start position: (31, 1). End position (31, 2).
+  Microsoft.Mashup.Host.Document
+  ```
+
+- **Root Cause**: A TMDL `expression <name> =` block stores its M body as an **opaque literal
+  string**. The TMDL parser never compiles the M, so a syntactically invalid M body is
+  invisible to TMDL-level tooling. The Mashup host is the first component that actually
+  parses it, and that happens only when Desktop opens the project. In this case the body
+  ended with `in Result;` — **TMDL does not use `;` as a statement terminator**, so the M
+  parser treated `;` as the start of a new expression and then required a token identifier
+  at the next position. The reported start position is the line *after* the offending
+  line, which is why the error appears to point at innocent whitespace.
+- **Recommended Template PR** (applied in this repo):
+  Add `scripts/validate_m_expressions.py`, a dependency-free structural checker for M bodies
+  that the TMDL parser does not cover: BOM/UTF-8 hygiene, bracket balance with proper
+  string and `//` / `/* */` comment tracking, unterminated literals, and the terminating
+  `in` expression shape (including the trailing-`;` defect above). Wire it into the
+  documented pre-commit validation set so a headless Linux or CI runner catches the error
+  before Desktop does.
+
+**Rule of thumb**: if Desktop reports an M syntax error but a TMDL import succeeds, the
+defect is inside the M body — not in the TMDL structure. Diff the expression against a
+Desktop-generated reference rather than re-checking TMDL indentation.
 
 ---
 

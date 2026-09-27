@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `scripts/validate_m_expressions.py` — structural validator for M bodies embedded in
+  `expressions.tmdl` (BOM/UTF-8 hygiene, bracket balance with string/comment tracking,
+  terminating `in` expression shape). Closes GAP-07: malformed M previously passed every
+  TMDL-level check and only failed when Power BI Desktop opened the project. Wired into
+  `CLAUDE.md`, `README.md`, `GETTING_STARTED.md`, and the release-reviewer checklist.
+
+### Fixed
+- `AdventureWorksSales.SemanticModel/definition/expressions.tmdl` — removed a stray `;`
+  after `in Result` in `fnCalendar`. TMDL does not use `;` as a statement terminator, so the
+  M parser demanded a token identifier at the next position and Power BI Desktop refused to
+  open the PBIP (`Syntax error in expression 'fnCalendar'. Token Identifier expected.`).
+  Added the missing `lineageTag` properties for `fnCalendar` and `fnCalendarWeekBased`.
+
 ## [0.1.0] — 2026-09-26
 
 ### Added
