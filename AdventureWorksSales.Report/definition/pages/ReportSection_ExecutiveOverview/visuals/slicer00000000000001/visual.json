@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "name": "slicer00000000000001",
   "position": {
     "x": 920,
@@ -27,11 +27,37 @@
                 }
               },
               "queryRef": "Calendar.FiscalYearLabel",
-              "nativeQueryRef": "FiscalYearLabel"
+              "nativeQueryRef": "FiscalYearLabel",
+              "active": true
             }
           ]
         }
       }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
     }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "97f9ec1ba9025a0db954",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Calendar"
+              }
+            },
+            "Property": "FiscalYearLabel"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

@@ -1,16 +1,28 @@
 table FactSales
-	column OrderDate
-		dataType: dateTime
-		summarizeBy: none
-		sourceColumn: OrderDate
-	column Amount
-		dataType: double
-		sourceColumn: Amount
+	lineageTag: ac9f7ad8-a71b-4f7b-86f5-465330a9a68f
+
 	measure 'Total Amount' = SUM(FactSales[Amount])
 		formatString: #,0.00
+		lineageTag: f01eba9b-4cad-4ac1-afdb-52e1e7ba1783
+
+	column OrderDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6a937f25-ef85-4ff6-a10b-ecf58be2337d
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Amount
+		dataType: double
+		lineageTag: af17cda1-8fb6-4cdc-9791-715117c6bcfc
+		sourceColumn: Amount
+
 	partition FactSales = m
 		mode: import
 		source =
-			let
-			    Source = #table(type table [OrderDate=date, Amount=number], {{#date(2024,1,15),1250},{#date(2025,9,4),990}})
-			in Source
+				let
+				    Source = #table(type table [OrderDate=date, Amount=number], {{#date(2024,1,15),1250},{#date(2025,9,4),990}})
+				in Source
+

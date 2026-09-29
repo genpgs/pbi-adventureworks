@@ -30,7 +30,7 @@ table DimSalesOrder
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
 				    Order_Sheet = Source{[Item="Sales Order_data",Kind="Sheet"]}[Data],
 				    #"Promoted Headers" = Table.PromoteHeaders(Order_Sheet, [PromoteAllScalars=true]),
 				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
@@ -41,4 +41,8 @@ table DimSalesOrder
 				    })
 				in
 				    #"Changed Types"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

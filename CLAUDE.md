@@ -23,7 +23,15 @@ Copy `mcp/mcp.json.example` to `~/.claude/mcp.json` (global) and fill in your De
 
 - **Plan before editing any files.** Never work directly on `main`.
 - **Never commit `.env`** or any credentials. Use `.env` (gitignored) locally; CI secrets for automation.
+- **Never commit generated or per-machine state.** `.pbi/`, `diagramLayout.json`, `.vscode/`, and
+  audit reports are gitignored. Only definition files belong in Git.
 - **Never invent** schema objects, workspace GUIDs, or measure values.
+- **Never hand-add speculative root-level properties to PBIR JSON.** Power BI Desktop rewrites
+  `report.json` on save and silently discards properties it does not recognise — a root-level
+  `layoutOptimization` is dropped this way. Treat a Desktop-saved project as canonical, and
+  verify generated output by round-tripping it through Desktop once.
+- **Never use bare relative paths in `File.Contents`.** Declare a `BasePath` parameter
+  (`IsParameterQuery=true`) and concatenate — see `docs/GETTING_STARTED.md` §5b.
 - **Never publish to production** before the release checklist passes.
 - **Linux is the authoring environment.** Power BI Desktop (Windows) is for rendering and publish validation only.
 - **Standard workspace only** — no Fabric capacity, no OneLake, no XMLA write assumed.
@@ -34,6 +42,7 @@ Copy `mcp/mcp.json.example` to `~/.claude/mcp.json` (global) and fill in your De
 ```bash
 python3 scripts/validate_repo.py
 python3 scripts/validate_date_table.py
+python3 scripts/validate_m_expressions.py
 bash scripts/validate_pbir.sh
 ```
 

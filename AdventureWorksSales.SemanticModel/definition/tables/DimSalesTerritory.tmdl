@@ -33,7 +33,7 @@ table DimSalesTerritory
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
 				    Territory_Sheet = Source{[Item="Sales Territory_data",Kind="Sheet"]}[Data],
 				    #"Promoted Headers" = Table.PromoteHeaders(Territory_Sheet, [PromoteAllScalars=true]),
 				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
@@ -44,4 +44,8 @@ table DimSalesTerritory
 				    })
 				in
 				    #"Changed Types"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

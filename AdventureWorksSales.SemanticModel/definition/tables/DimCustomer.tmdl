@@ -52,10 +52,11 @@ table DimCustomer
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
 				    Customer_Sheet = Source{[Item="Customer_data",Kind="Sheet"]}[Data],
 				    #"Promoted Headers" = Table.PromoteHeaders(Customer_Sheet, [PromoteAllScalars=true]),
-				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
+				    #"Removed Top Rows" = Table.Skip(#"Promoted Headers",1),
+				    #"Changed Types" = Table.TransformColumnTypes(#"Removed Top Rows",{
 				        {"CustomerKey", Int64.Type},
 				        {"Customer ID", type text},
 				        {"Customer", type text},
@@ -66,4 +67,8 @@ table DimCustomer
 				    })
 				in
 				    #"Changed Types"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 
