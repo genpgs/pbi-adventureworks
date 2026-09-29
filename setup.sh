@@ -59,7 +59,12 @@ fi
 # ── 6. Pre-commit hook ────────────────────────────────────────────────────────
 echo ""
 if [ -d .git ]; then
-    read -rp "Install pre-commit validation hook? [Y/n] " ans
+    # `read` returns non-zero without a TTY, which would abort the script under
+    # `set -e` in Codespaces/CI. Default to yes in that case.
+    ans=Y
+    if [ -t 0 ]; then
+        read -rp "Install pre-commit validation hook? [Y/n] " ans
+    fi
     if [[ "${ans:-Y}" =~ ^[Yy]$ ]]; then
         cp hooks/pre-commit .git/hooks/pre-commit
         chmod +x .git/hooks/pre-commit
@@ -71,16 +76,21 @@ else
     echo "[SKIP] Not a git repo — skipping pre-commit hook installation. Run 'git init' first."
 fi
 
-# ── 7. MCP config reminder ────────────────────────────────────────────────────
+# ── 7. OpenCode + MCP registration ────────────────────────────────────────────
+# Shared with the dev container so Codespaces and local clones end up identical.
+bash scripts/setup_opencode.sh || echo "[WARN] OpenCode setup did not complete — see output above."
+
+# ── 8. MCP config reminder ────────────────────────────────────────────────────
 echo ""
 echo "━━ MCP Configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Copy mcp/mcp.json.example to your harness config:"
+echo "  Other harnesses — copy mcp/mcp.json.example to:"
 echo "    Antigravity : ~/.config/antigravity/mcp.json"
 echo "    VS Code     : .vscode/mcp.json"
 echo "    Claude Code : ~/.claude/mcp.json"
+echo "  OpenCode is configured automatically — see the OpenCode section above."
 echo ""
 
-# ── 8. Quick validation ───────────────────────────────────────────────────────
+# ── 9. Quick validation ───────────────────────────────────────────────────────
 echo "Running quick validation..."
 python3 scripts/validate_repo.py && python3 scripts/validate_date_table.py || {
     echo ""

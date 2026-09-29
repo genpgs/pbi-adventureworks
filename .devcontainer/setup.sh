@@ -30,9 +30,11 @@ else
     echo "pbir-cli: $(powerbi-report-author --version 2>/dev/null || echo 'installed')"
 fi
 
-# 3. Warm up powerbi-modeling-mcp npx cache (best-effort)
-echo "==> Warming up powerbi-modeling-mcp cache..."
-npx -y @microsoft/powerbi-modeling-mcp@latest --version 2>/dev/null || true
+# 3. Install OpenCode and register the Power BI modeling MCP server.
+#    Shared with the root setup.sh so Codespaces and local clones end up identical.
+#    This also warms the npx cache that the MCP server needs on first connect.
+echo "==> Setting up OpenCode and the Power BI modeling MCP server..."
+bash scripts/setup_opencode.sh || echo "[WARN] OpenCode setup did not complete — see output above."
 
 # 4. Copy .env if not present
 if [ ! -f .env ] && [ -f .env.example ]; then

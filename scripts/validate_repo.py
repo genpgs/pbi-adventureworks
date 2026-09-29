@@ -24,6 +24,7 @@ REQUIRED_FILES = [
     "scripts/validate_pbir_schema.py",
     "scripts/validate_m_expressions.py",
     "scripts/scaffold_pbir.py",
+    "scripts/setup_opencode.sh",
     "hooks/pre-commit",
     "mcp/mcp.json.example",
     "dax/queries/validate-calendar.dax",

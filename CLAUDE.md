@@ -19,6 +19,8 @@ Common reference docs referenced by skills: `.agents/common/`
 The `powerbi-modeling-mcp` MCP server is required for Tier 1 semantic model authoring.
 Copy `mcp/mcp.json.example` to `~/.claude/mcp.json` (global) and fill in your Desktop port or workspace URL.
 
+`mcp/mcp.json.example` also carries an `_opencode` block for OpenCode users. Claude Code should ignore that key — OpenCode uses a different schema (servers nested under `mcp.servers`, `"type": "local"`, single `command` array).
+
 ## Guardrails
 
 - **Plan before editing any files.** Never work directly on `main`.
@@ -45,6 +47,21 @@ python3 scripts/validate_date_table.py
 python3 scripts/validate_m_expressions.py
 bash scripts/validate_pbir.sh
 ```
+
+### OpenCode automation
+
+OpenCode users get two project commands in `.opencode/commands/`:
+
+| Command | What it does |
+|---------|--------------|
+| `/pbi-sync` | Exports the MCP server's in-memory model to the `.tmdl` files, then shows and reviews `git diff`. |
+| `/pbi-commit` | Runs all three validators above, then commits only if every one passes. |
+
+`/pbi-sync` exists because the MCP server holds model edits in memory. Nothing reaches the `.tmdl` files until `database_operations` → `ExportToTmdlFolder` runs, so committing without it commits nothing.
+
+`/pbi-commit` refuses to run on `main` and blocks on a non-zero validator exit. Do not treat its gates as a substitute for reading the diff.
+
+Note that `hooks/pre-commit` is opt-in (`setup.sh` offers it) and covers only two of the three validators — it omits `validate_pbir.sh`. Do not rely on it as the gate.
 
 ## Reference Resources
 

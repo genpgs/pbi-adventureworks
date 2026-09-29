@@ -19,6 +19,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   canonical shape Desktop writes for `.pbip`, `definition.pbir`, `definition.pbism`,
   `database.tmdl`, `model.tmdl`, `report.json`, `pages.json`, and `visual.json`, verified
   against the Desktop-authored `CEO-Dashboard.pbip` reference.
+- OpenCode bridge: `opencode.json` and project commands `/pbi-sync` (export in-memory model to TMDL, then review the diff) and `/pbi-commit` (run all three validators, commit only if they pass)
+- `scripts/setup_opencode.sh` — installs the OpenCode CLI and registers the `powerbi` MCP server globally; called by both `setup.sh` and `.devcontainer/setup.sh` so Codespaces and local clones converge. Idempotent, non-interactive, and safe against JSONC or hand-pinned configs
+- `_opencode` config variant in `mcp/mcp.json.example`, plus shared cautions on hosted-vs-local registration and TMDL export
+- OpenCode V2 VS Code extension (`sst-dev.opencode-v2`) in the dev container for the in-editor chat panel
 
 ### Changed
 - `AdventureWorksSales.SemanticModel/definition/expressions.tmdl` — added a `BasePath`
@@ -50,6 +54,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `datasetReference.byPath`.
 - `AdventureWorksSales.SemanticModel/definition/database.tmdl` — model name removed, leaving
   bare `database` with `compatibilityLevel: 1702`, matching Desktop.
+- `setup.sh` no longer aborts mid-run when stdin is not a TTY (Codespaces, CI); the pre-commit hook prompt now defaults to yes in that case
 
 ## [0.1.0] — 2026-09-26
 

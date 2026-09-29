@@ -20,7 +20,7 @@ Ships with:
 # 1. Clone your new repo (after clicking "Use this template" on GitHub)
 git clone https://github.com/genpgs/<your-repo>.git && cd <your-repo>
 
-# 2. Run setup (installs uv, pbir-cli, copies .env, optional pre-commit hook)
+# 2. Run setup (installs uv, pbir-cli, OpenCode, registers the Power BI MCP server, copies .env, optional pre-commit hook)
 bash setup.sh
 
 # 3. Edit .env with your workspace and fiscal calendar settings
@@ -60,6 +60,27 @@ See **[docs/fiscal-calendar.md](docs/fiscal-calendar.md)** for full pattern docs
 | **Antigravity** | `.agents/skills/` | ✅ Canonical |
 | **GitHub Copilot** | `.github/agents/` + `.github/instructions/` | ✅ Bridge stubs |
 | **Claude Code** | `CLAUDE.md` | ✅ Bridge |
+| **OpenCode** | `opencode.json` + `.opencode/commands/` | ✅ Bridge + commands |
+
+### OpenCode
+
+`setup.sh` (and the dev container, for Codespaces) installs the OpenCode CLI and
+registers the `powerbi` modeling MCP server globally. Both steps are idempotent —
+re-running setup will not duplicate the registration or overwrite a pinned version.
+
+In Codespaces the dev container also installs the **OpenCode V2** VS Code extension
+(`sst-dev.opencode-v2`) for the in-editor chat panel. The extension needs the
+`opencode` CLI on `PATH`, which `postCreateCommand` installs.
+
+In this repo, two project commands wrap the MCP authoring loop:
+
+| Command | What it does |
+|---------|--------------|
+| `/pbi-sync` | Exports the MCP server's in-memory model to the `.tmdl` files, then reviews the `git diff`. |
+| `/pbi-commit` | Runs all three validators, then commits only if every one passes. |
+
+> Model edits live in the MCP server's memory. Nothing reaches the `.tmdl` files
+> until `database_operations` → `ExportToTmdlFolder` runs — which is what `/pbi-sync` does.
 
 ---
 
@@ -84,8 +105,10 @@ powerbi-dev-template/
 ├── samples/pbip-calendar-baseline/  # Working PBIP sample
 ├── dax/queries/validate-calendar.dax
 ├── scripts/                 # Validation scripts
+│   ├── setup_opencode.sh    # OpenCode install + MCP registration (idempotent)
 ├── hooks/pre-commit         # Git pre-commit hook
-├── mcp/mcp.json.example     # powerbi-modeling-mcp config stub
+├── mcp/mcp.json.example     # powerbi-modeling-mcp config stub (+ OpenCode variant)
+├── .opencode/commands/      # /pbi-sync and /pbi-commit
 ├── docs/                    # GETTING_STARTED.md, fiscal-calendar.md
 ├── .env.example
 └── setup.sh
@@ -101,6 +124,7 @@ powerbi-dev-template/
 | Node.js | 18+ | <https://nodejs.org> |
 | uv | latest | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | git | 2.30+ | package manager |
+| OpenCode | latest | auto-installed by `setup.sh`, or <https://opencode.ai> |
 | Power BI Desktop | latest | Windows only — for rendering & publish |
 
 ---

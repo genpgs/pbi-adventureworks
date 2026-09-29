@@ -1,10 +1,12 @@
 {
-  "_comment": "Copy this file to the correct location for your agent harness and remove this _comment key.",
+  "_comment": "Copy the block for your harness to its config location and drop the _comment/_locations/_notes keys. OpenCode does NOT use the top-level block below — see _opencode.",
   "_locations": {
     "antigravity-global":   "~/.config/antigravity/mcp.json",
     "antigravity-per-repo": ".antigravity/mcp.json  (repo root)",
     "vscode-copilot":       ".vscode/mcp.json  (repo root)",
-    "claude-code":          "~/.claude/mcp.json  (global)"
+    "claude-code":          "~/.claude/mcp.json  (global)",
+    "opencode-global":      "~/.config/opencode/opencode.json",
+    "opencode-per-repo":    "opencode.json  (repo root)"
   },
   "powerbi-modeling-mcp": {
     "type": "stdio",
@@ -13,8 +15,36 @@
     "_notes": [
       "Requires Node.js 18+ and npx on PATH.",
       "On Windows: connects to a running Power BI Desktop instance automatically.",
-      "On Linux: connects to a Fabric workspace. The MCP server will prompt for auth on first use.",
+      "On Linux: connects to a Fabric workspace or a PBIP/TMDL folder on disk. The MCP server will prompt for auth on first use.",
       "See https://github.com/microsoft/powerbi-modeling-mcp for full docs."
     ]
-  }
+  },
+
+  "_opencode": {
+    "_comment": "OpenCode V2 uses a different schema: servers nest under mcp.servers, type is 'local' (not 'stdio'), and command is a single array of executable + args. Add the whole _opencode block below into your opencode.json.",
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+      "timeout": {
+        "startup": 180000
+      },
+      "servers": {
+        "powerbi": {
+          "type": "local",
+          "command": ["npx", "-y", "@microsoft/powerbi-modeling-mcp@latest", "--start"]
+        }
+      }
+    },
+    "_notes": [
+      "timeout.startup is raised to 180s because the first npx run downloads a .NET binary; the default 30s startup timeout is not enough on a cold cache.",
+      "Install globally with: opencode mcp add powerbi --global -- npx -y @microsoft/powerbi-modeling-mcp@latest --start",
+      "A project-level server with the same name REPLACES the global one entirely (not merged), so keep the entry in one place only."
+    ]
+  },
+
+  "_shared_cautions": [
+    "Register either the local server or the hosted server, never both. Overlapping tool sets make routing ambiguous and waste tokens on every request. Hosted = https://api.fabric.microsoft.com/v1/mcp/powerbi/authoring (Fabric workspaces only; it cannot reach Power BI Desktop or PBIP files on disk).",
+    "Model edits are held in the server's memory. Changes are NOT written to .tmdl files until you explicitly run database_operations -> ExportToTmdlFolder. Committing before that export loses the work.",
+    "Keep the PBIP under Git so every change is a reviewable diff and revertable.",
+    "Add --readonly to args to block all write operations, or --authmode=serviceprincipal with AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_CLIENT_SECRET for CI."
+  ]
 }
