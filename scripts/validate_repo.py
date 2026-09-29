@@ -20,6 +20,7 @@ REQUIRED_FILES = [
     "power-query/fnFiscalCalendarConfig.m",
     "scripts/validate_repo.py",
     "scripts/validate_date_table.py",
+    "scripts/validate_report.py",
     "scripts/validate_pbir.sh",
     "scripts/validate_pbir_schema.py",
     "scripts/validate_m_expressions.py",

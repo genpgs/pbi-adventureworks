@@ -1,16 +1,16 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
-  "name": "subcat00000000000001",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "fytrajectory000000001",
   "position": {
-    "x": 640,
-    "y": 550,
-    "z": 3000,
-    "height": 155,
-    "width": 620,
-    "tabOrder": 3000
+    "x": 852,
+    "y": 510,
+    "z": 8000,
+    "height": 195,
+    "width": 408,
+    "tabOrder": 8000
   },
   "visual": {
-    "visualType": "barChart",
+    "visualType": "clusteredColumnChart",
     "query": {
       "queryState": {
         "Category": {
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "DimProduct"
+                      "Entity": "Calendar"
                     }
                   },
-                  "Property": "Subcategory"
+                  "Property": "FiscalYearLabel"
                 }
               },
-              "queryRef": "DimProduct.Subcategory",
-              "nativeQueryRef": "Subcategory",
+              "queryRef": "Calendar.FiscalYearLabel",
+              "nativeQueryRef": "FiscalYearLabel",
               "active": true
             }
           ]
@@ -50,6 +50,24 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Calendar"
+                  }
+                },
+                "Property": "FiscalYear"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -64,6 +82,33 @@
                       "Value": "'#2563EB'"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
                 }
               }
             }
@@ -188,7 +233,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Revenue by Subcategory'"
+                  "Value": "'Annual Growth Trajectory (4-4-5 Fiscal)'"
                 }
               }
             },
@@ -214,13 +259,6 @@
               "expr": {
                 "Literal": {
                   "Value": "'left'"
-                }
-              }
-            },
-            "titleWrap": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
                 }
               }
             }

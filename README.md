@@ -104,8 +104,11 @@ powerbi-dev-template/
 │   └── fnFiscalCalendarConfig.m
 ├── samples/pbip-calendar-baseline/  # Working PBIP sample
 ├── dax/queries/validate-calendar.dax
-├── scripts/                 # Validation scripts
+├── scripts/                 # Validation + report theming scripts
 │   ├── setup_opencode.sh    # OpenCode install + MCP registration (idempotent)
+│   ├── validate_report.py   # PBIR canvas layout: overlap + out-of-bounds
+│   ├── apply_report_theme.js# Idempotent report restyle pipeline
+│   └── build_*/relayout_*.js# Individual theming steps (see apply_report_theme)
 ├── hooks/pre-commit         # Git pre-commit hook
 ├── mcp/mcp.json.example     # powerbi-modeling-mcp config stub (+ OpenCode variant)
 ├── .opencode/commands/      # /pbi-sync and /pbi-commit
