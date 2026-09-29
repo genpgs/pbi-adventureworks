@@ -14,9 +14,9 @@ Install these tools before starting:
 | **Node.js** | 18 | <https://nodejs.org> |
 | **uv** | latest | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | **git** | 2.30 | OS package manager |
-| **Power BI Desktop** | latest | Windows only — for rendering and publishing |
+| **Power BI Desktop** | latest | Windows only — for local data refresh and desktop visual rendering |
 
-> **Linux users**: All authoring (TMDL editing, validation, M functions) runs on Linux. You only need Windows + Power BI Desktop when you want to render visuals or publish to a workspace.
+> **Linux users**: All authoring (TMDL model definition, PBIR report JSON, M functions, DAX measures, automated schema validation, and HTML dashboard prototyping) runs natively on Linux. You only need Windows + Power BI Desktop or Microsoft Fabric when executing local Power Query M data refreshes into VertiPaq memory or previewing the desktop GUI. See [`docs/LINUX_WORKFLOW_GAPS.md`](LINUX_WORKFLOW_GAPS.md) for full Linux findings.
 
 ---
 
@@ -46,7 +46,7 @@ bash setup.sh
 
 The script:
 - Installs **uv** (if not present)
-- Installs **pbir-cli** via uv
+- Checks / installs **pbir-cli** (on macOS and Windows; on Linux, it informs you that the built-in `scripts/validate_pbir_schema.py` is used automatically)
 - Copies `.env.example` → `.env`
 - Optionally installs the pre-commit validation hook
 
@@ -66,22 +66,6 @@ FISCAL_NUMBER_OF_YEARS=5
 ```
 
 > `.env` is gitignored — never commit it.
-
-### What else is gitignored, and why
-
-`.gitignore` deliberately excludes four categories of generated or per-machine state. None of
-them are definition data, so excluding them keeps diffs limited to real model/report changes.
-
-| Pattern | Why it is excluded |
-|---|---|
-| `**/.pbi/` | The whole folder is per-user runtime state that Desktop regenerates (`localSettings.json`, `cache.abf`, `editorSettings.json`, pending-query state). It contains machine-specific paths and a large binary cache. |
-| `**/diagramLayout.json`, `**/semanticModelDiagramLayout.json` | Diagram positions are Desktop state, not definition. They rewrite on nearly every save, which would bury real changes in diff noise. |
-| `.vscode/`, `.idea/` | Editor-specific workspace preferences. |
-| `PBIP_STRUCTURE_COMPARISON_REPORT.md` | Regenerable audit output, not a source file. |
-
-> **Note on `.pbi/editorSettings.json`**: the PBIP skill lists it as committable, but this repo
-> ignores it along with the rest of `.pbi/`. It is regenerated on demand, so nothing is lost —
-> and ignoring the whole tree avoids re-discovering stray files one at a time.
 
 ---
 
@@ -104,41 +88,15 @@ See [`docs/fiscal-calendar.md`](fiscal-calendar.md) for full pattern documentati
 
 ---
 
-## 5b. Point partitions at your data files
-
-A partition that reads a local file must **not** use a bare relative path. `File.Contents`
-resolves relative paths against the M engine's working directory rather than the PBIP root, so
-a path that looks project-relative fails on refresh. Declare a parameter and concatenate.
-
-In `<Model>.SemanticModel/definition/expressions.tmdl`:
-
-```tmdl
-expression BasePath = "E:\01-Projects\PBI-Automation\PBI-Adventureworks\" meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=true]
-	lineageTag: f4622c3a-d94b-4a8f-b485-aba488849cac
-```
-
-Then in each partition's `source =` block:
-
-```m
-Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
-```
-
-`IsParameterQuery=true` is what makes Desktop expose `BasePath` as an editable parameter in the
-Queries pane, so each machine can repoint it without editing TMDL. For a repo cloned across
-machines, author a placeholder value and have each developer set it once. This is GAP-08 in
-[`LINUX_WORKFLOW_GAPS.md`](LINUX_WORKFLOW_GAPS.md).
-
----
-
 ## 6. Run validation
 
 From the repo root:
 
 ```bash
-python3 scripts/validate_repo.py          # structure, JSON, required files
-python3 scripts/validate_date_table.py    # Calendar TMDL columns for your pattern
-python3 scripts/validate_m_expressions.py # M bodies in expressions.tmdl
-bash scripts/validate_pbir.sh           # PBIR JSON (requires pbir-cli)
+python3 scripts/validate_repo.py        # structure, JSON, git tracking, PBIP projects
+python3 scripts/validate_date_table.py  # Calendar TMDL columns for your pattern
+bash scripts/validate_pbir.sh           # PBIR JSON (uses pbir-cli or validate_pbir_schema.py)
+python3 scripts/validate_m_expressions.py # M body structure, 'in' shape, partition file paths
 ```
 
 All checks should show `[PASS]`.
@@ -155,9 +113,162 @@ All checks should show `[PASS]`.
 
 ---
 
-## 8. Configure the MCP server
+## 7b. Two things that will bite you
+
+Both of these pass every schema-level check and still fail on open or refresh. They are
+enforced by `scripts/validate_m_expressions.py` and `scripts/validate_pbir_schema.py`, but
+it is worth knowing the cause.
+
+### 7b.1 Partition paths must be built from a parameter (GAP-08)
+
+`File.Contents` resolves a relative path against the M engine's working directory, **not**
+against the PBIP root. So this looks right and fails on refresh wherever the project lives:
+
+```m
+Source = Excel.Workbook(File.Contents("data/sales.xlsx"), null, true)
+```
+
+Declare a path parameter and concatenate instead:
+
+```m
+expression BasePath = "/home/me/projects/Adventureworks/" meta [IsParameterQuery=true, Type="Any"]
+
+// in the partition
+Source = Excel.Workbook(File.Contents(BasePath & "data/sales.xlsx"), null, true)
+```
+
+`BasePath` is a normal M parameter: it belongs in `expressions.tmdl` with the
+`IsParameterQuery=true` metadata, and you pass the value at refresh time. The validator
+only flags a string literal in first-argument position, so the correct form needs no
+exemption.
+
+### 7b.2 No `;` on the terminating `in` expression (GAP-07)
+
+M has no `;` statement terminator. A trailing semicolon makes the parser start a fresh
+expression and demand a token identifier:
+
+```
+Syntax error in expression 'fnCalendar'. Token Identifier expected.
+```
+
+The offending `;` sits on whichever line carries the `in` value, which is often the line
+*after* `in`, so it is easy to miss by eye:
+
+```m
+let
+    // ...
+in
+    Result;      // <- this semicolon is the whole bug
+```
+
+### 7b.3 Generated state is not source
+
+Desktop rewrites these on every open and save, so committing them produces diff noise and
+merge conflicts rather than meaning. They are all covered by `.gitignore`:
+
+| Path | What it is |
+|------|-----------|
+| `**/.pbi/` | Per-user Desktop runtime state: settings, caches, editor layout |
+| `diagramLayout.json`, `semanticModelDiagramLayout.json` | Diagram auto-layout, rewritten on save |
+| `.vscode/`, `.idea/` | IDE folders Desktop may create next to the PBIP |
+
+---
+
+## 7c. Write PBIP files the way Desktop does
+
+`scripts/validate_pbir_schema.py` enforces the Desktop-canonical shape, because a
+hand-written file that is *nearly* right opens fine and then fails to render a theme or
+gets rewritten on first save. The key points:
+
+| File | Canonical form |
+|------|----------------|
+| `<Name>.pbip` | Has `$schema` (`.../fabric/pbip/pbipProperties/1.0.0/schema.json`); `artifacts` lists the **report only** — a `semanticModel` entry makes Desktop refuse to open the project (GAP-11); `settings.enableAutoRecovery: true` |
+| `definition.pbir` | Has `$schema` (`.../fabric/item/report/definitionProperties/2.0.0/schema.json`); `datasetReference.byPath` |
+| `definition/version.json` | Has `$schema` (`.../versionMetadata/1.0.0/schema.json`) and `version: "2.0.0"` |
+| `definition/report.json` | `themeCollection` is an **object** with a `baseTheme` entry; `resourcePackages` is a **flat** list of `{name, type, items}`; **no** `layoutOptimization` |
+| `definition.pbism` | `version: "4.2"`, `settings: {}` |
+| `definition/database.tmdl` | Bare `database` keyword plus `compatibilityLevel` (Desktop drops the model name) |
+| `<Item>.platform` | **One per item folder** — both `.Report` and `.SemanticModel`. Has `metadata.type`, `metadata.displayName` and a stable `config.logicalId` UUID. Missing it is `PBIR_PLATFORM_MISSING` in the Fabric toolchain. |
+| `pages/pages.json` | Has `$schema` (`.../pagesMetadata/1.1.0/schema.json`) |
+| `pages/<Name>/page.json` | Has `$schema` (`.../page/2.1.0/schema.json`) **and** `displayOption` (e.g. `FitToPage`), which the schema requires |
+
+The `resourcePackages` shape is the easiest to get wrong: some generators emit a wrapped
+`{"resourcePackage": {...}}` form. Desktop tolerates it but the theme silently fails to
+apply.
+
+**Desktop's tolerance is not correctness.** A `.Report` folder missing `.platform`, or
+definition JSON missing `$schema`, opens in Desktop without complaint and is still rejected
+by the Fabric toolchain — so "it opens" is not evidence that it is right. Where
+`pbir-cli` is available, `scripts/validate_pbir.sh` validates against the real JSON Schemas
+and will catch constraints `validate_pbir_schema.py` does not implement. Run both when unsure.
+See `docs/LINUX_WORKFLOW_GAPS.md` GAP-10.
+
+**The one hard stop.** A `semanticModel` entry in the `.pbip` manifest is the only defect here
+that Desktop will not open at all:
+
+```
+Property 'semanticModel' has not been defined and the schema does not allow
+additional properties.  Path 'artifacts[1].semanticModel'
+```
+
+The manifest's `artifacts` array describes what the shortcut *launches* — the report. The
+semantic model is already wired up by `definition.pbir` → `datasetReference.byPath`, so
+listing it is both invalid and redundant. A correct manifest is:
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json",
+  "version": "1.0",
+  "artifacts": [ { "report": { "path": "MyReport.Report" } } ],
+  "settings": { "enableAutoRecovery": true }
+}
+```
+
+`scripts/validate_repo.py` checks this for every `*.pbip` it finds — note that it validates
+whatever project is in front of you, so a downstream copy that has drifted from this template
+is still caught. See `docs/LINUX_WORKFLOW_GAPS.md` GAP-11.
+
+**Errors that only appear on refresh.** Some M problems survive every import and every
+validator, because nothing outside a running M engine resolves a symbol. The classic case is
+a DAX or Excel function name used as an M module member — the project opens, the report
+renders, and refresh reports:
+
+```
+1 query is blocked by the following error:
+The import Number.Max matches no module reference.
+```
+
+`MAX()` and `MIN()` are DAX and Excel calls. In M, aggregation is in `List`, and the `Number`
+module has no `Max` or `Min`:
+
+| Written | Correct in M |
+|---|---|
+| `Number.Max(a, b)` | `List.Max({a, b})` |
+| `Number.Min(a, b)` | `List.Min({a, b})` |
+| `Number.Sum(list)` | `List.Sum(list)` |
+| `Number.Average(list)` | `List.Average(list)` |
+| `Number.Count(list)` | `List.Count(list)` |
+| `Text.Len(x)` | `Text.Length(x)` |
+| `Number.IsBlank(x)` | `x = null` |
+
+Two habits prevent this. When porting a calculation from DAX, re-derive the function against
+the [M reference](https://learn.microsoft.com/en-us/powerquery-m/) rather than transliterating
+the name. And remember Desktop stops at the *first* bad expression, so a file with three
+defects reports one — expect the next to appear after you fix this one.
+
+`scripts/validate_m_expressions.py` scans `expressions.tmdl`, every `tables/*.tmdl`, and the
+`power-query/*.m` reference files against a denylist of members confirmed absent from the
+official reference. It is a denylist, so it cannot be exhaustive — **a refresh is still the
+only complete check.** A green M validator is necessary, not sufficient. See
+`docs/LINUX_WORKFLOW_GAPS.md` GAP-12.
+
+---
+
+## 8. Configure the MCP server & EULA
 
 The `powerbi-modeling-mcp` MCP server enables Tier 1 semantic model authoring (live model edits, measure creation, etc.).
+
+> **Important (EULA Acceptance)**: Microsoft's MCP requires legal terms acknowledgement before tools execute. In headless or agent environments, set `"PBI_MODELING_MCP_ACCEPT_EULA": "true"` in your MCP environment configuration, or pass `--accept-eula` when invoking the server. Review the terms at <https://go.microsoft.com/fwlink/?LinkId=2381247>.
 
 Copy `mcp/mcp.json.example` to the correct location for your harness:
 
@@ -172,7 +283,24 @@ Then remove the `_comment` and `_locations` keys from the copied file.
 
 ---
 
-## 9. Start your first agent session
+## 9. Helper Scripts & Prototyping Templates
+
+- **Profile Data Sources**:
+  ```bash
+  python3 scripts/inspect_data_source.py path/to/source.xlsx --markdown
+  ```
+  Profiles sheets, column types, null %, and automatically recommends Dimension vs Fact table roles and candidate primary/foreign keys.
+- **Scaffold PBIR Reports & PBIP Projects**:
+  ```bash
+  python3 scripts/scaffold_pbir.py SalesReport --pages "Executive Overview" "Product Breakdown" --template executive
+  ```
+  Generates a complete, compliant `.Report` folder (`definition.pbir`, `pages.json`, `page.json`, and visual layout placeholders) plus the `.pbip` manifest.
+- **Interactive HTML Dashboard Prototype**:
+  Copy `templates/html-prototype/dashboard-template.html` to rapidly mockup canvas layouts, test KPI metrics, and inspect exact PBIR visual position coordinates before writing TMDL/PBIR.
+
+---
+
+## 10. Start your first agent session
 
 Open your agent harness (Antigravity, GitHub Copilot, Claude Code) in the repo directory and try these example prompts:
 
@@ -208,7 +336,8 @@ Update the Calendar partition to use the 13-period pattern
 
 | Problem | Fix |
 |---------|-----|
-| `powerbi-report-author: command not found` | Run `uv tool install pbir-cli` and ensure `~/.local/bin` is on `PATH` |
+| `powerbi-report-author: command not found` (macOS/Win) | Run `uv tool install pbir-cli` and ensure `~/.local/bin` is on `PATH`. On Linux, `scripts/validate_pbir.sh` automatically falls back to `scripts/validate_pbir_schema.py`. |
+| MCP tool fails with `EULA must be accepted` | Add `"PBI_MODELING_MCP_ACCEPT_EULA": "true"` to your MCP `env` block, or invoke the `accept_eula` tool. |
 | `npx: command not found` | Install Node.js 18+ |
 | Calendar refresh fails in Desktop | Check that `FactSales[OrderDate]` has valid dates; the partition derives its range from fact data |
 | `ValidationPassed = FALSE` in DAX | Check `NoNullWeeks`/`NoNullPeriods` — a null week usually means the date falls outside the generated fiscal years; increase `NumberOfYears` |

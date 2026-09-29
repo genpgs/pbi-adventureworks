@@ -62,7 +62,7 @@ table DimProduct
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
 				    Product_Sheet = Source{[Item="Product_data",Kind="Sheet"]}[Data],
 				    #"Promoted Headers" = Table.PromoteHeaders(Product_Sheet, [PromoteAllScalars=true]),
 				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
@@ -78,4 +78,8 @@ table DimProduct
 				    })
 				in
 				    #"Changed Types"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

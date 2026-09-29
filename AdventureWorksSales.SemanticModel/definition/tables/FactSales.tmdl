@@ -29,17 +29,35 @@ table FactSales
 		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
 		lineageTag: Measure_AverageOrderValue
 
-	measure 'Sales PY' = CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Calendar'[Date]))
-		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
-		lineageTag: Measure_SalesPY
+	measure 'Sales PY' =
+			VAR CurrentFY  = MAX('Calendar'[FiscalYear])
+			VAR CurrentWks = VALUES('Calendar'[FiscalWeekNumber])
+			RETURN
+			CALCULATE(
+				[Total Sales],
+				'Calendar'[FiscalYear] = CurrentFY - 1,
+				'Calendar'[FiscalWeekNumber] IN CurrentWks
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: d6f0109b-a762-4735-bef0-a96f8a820d5a
 
 	measure 'Sales YoY Growth %' = DIVIDE([Total Sales] - [Sales PY], [Sales PY], 0)
 		formatString: +0.00%;-0.00%;0.00%
 		lineageTag: Measure_SalesYoYGrowth
 
-	measure 'Profit PY' = CALCULATE([Total Profit], SAMEPERIODLASTYEAR('Calendar'[Date]))
-		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
-		lineageTag: Measure_ProfitPY
+	measure 'Profit PY' = ```
+			VAR CurrentFY  = MAX('Calendar'[FiscalYear])
+			VAR CurrentWks = VALUES('Calendar'[FiscalWeekNumber])
+			RETURN
+			CALCULATE(
+				[Total Profit],
+				'Calendar'[FiscalYear] = CurrentFY - 1,
+				'Calendar'[FiscalWeekNumber] IN CurrentWks
+			)
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: e87f2e2e-6dd7-410b-b6ba-ea87054742ff
 
 	measure 'Profit YoY Growth %' = DIVIDE([Total Profit] - [Profit PY], [Profit PY], 0)
 		formatString: +0.00%;-0.00%;0.00%
@@ -145,7 +163,7 @@ table FactSales
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("data/AdventureWorks Sales.xlsx"), null, true),
+				    Source = Excel.Workbook(File.Contents(BasePath & "data/AdventureWorks Sales.xlsx"), null, true),
 				    Sales_Sheet = Source{[Item="Sales_data",Kind="Sheet"]}[Data],
 				    #"Promoted Headers" = Table.PromoteHeaders(Sales_Sheet, [PromoteAllScalars=true]),
 				    #"Changed Types" = Table.TransformColumnTypes(#"Promoted Headers",{
@@ -167,4 +185,8 @@ table FactSales
 				    })
 				in
 				    #"Changed Types"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

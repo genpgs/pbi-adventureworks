@@ -24,5 +24,7 @@
       ]
     }
   ],
-  "layoutOptimization": "Canvas"
+  "settings": {
+    "useEnhancedTooltips": false
+  }
 }
