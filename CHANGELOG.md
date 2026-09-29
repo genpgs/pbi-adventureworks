@@ -9,6 +9,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `scripts/validate_report.py` — PBIR canvas layout validation: visual overlap, negative
   positions, and out-of-bounds placement. Schema validation cannot detect these, so every
   file could be valid while the page was unusable. Wired into `hooks/pre-commit` and CI.
+- `docs/LINUX_WORKFLOW_GAPS.md` — GAP-13 through GAP-18 recorded from restyling the report to
+  the design prototype: npm global-install permissions, canvas-layout blindness, silent schema
+  skip when schemas are unreachable, unguessable PBIR/theme property names, `cardVisual`
+  clipping, and the unverifiable render step
 - Custom report theme `AdventureWorksClean-a7c3e91b.json` matching `report-prototype.html`
   (palette, card chrome, table row banding), registered in `report.json`
 - Five accent-coloured KPI cards on Executive Overview, replacing the single 1240px-wide
