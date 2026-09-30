@@ -5,7 +5,7 @@
     "x": 20,
     "y": 15,
     "z": 1000,
-    "height": 45,
+    "height": 52,
     "width": 1240,
     "tabOrder": 1000
   },
@@ -22,8 +22,9 @@
                     "value": "AdventureWorks — Product & Customer Profitability Analysis",
                     "textStyle": {
                       "fontWeight": "bold",
-                      "fontSize": "16pt",
-                      "color": "#0f172a"
+                      "fontSize": "20pt",
+                      "color": "#0F172A",
+                      "fontFamily": "Segoe UI Semibold"
                     }
                   }
                 ]

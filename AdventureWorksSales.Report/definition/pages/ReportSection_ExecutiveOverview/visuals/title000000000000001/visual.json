@@ -19,11 +19,24 @@
               {
                 "textRuns": [
                   {
-                    "value": "AdventureWorks Sales Analytics — Executive Overview",
+                    "value": "AdventureWorks Sales Analytics",
                     "textStyle": {
                       "fontWeight": "bold",
-                      "fontSize": "18pt",
-                      "color": "#0f172a"
+                      "fontSize": "20pt",
+                      "color": "#0F172A",
+                      "fontFamily": "Segoe UI Semibold"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Data Source: AdventureWorks Sales  ·  4-4-5 Fiscal Calendar Pattern  ·  PBIP / PBIR",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#64748B",
+                      "fontFamily": "Segoe UI"
                     }
                   }
                 ]

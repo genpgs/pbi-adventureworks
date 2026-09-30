@@ -6,6 +6,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `scripts/validate_report.py` — PBIR canvas layout validation: visual overlap, negative
+  positions, and out-of-bounds placement. Schema validation cannot detect these, so every
+  file could be valid while the page was unusable. Wired into `hooks/pre-commit` and CI.
+- `docs/LINUX_WORKFLOW_GAPS.md` — GAP-13 through GAP-18 recorded from restyling the report to
+  the design prototype: npm global-install permissions, canvas-layout blindness, silent schema
+  skip when schemas are unreachable, unguessable PBIR/theme property names, `cardVisual`
+  clipping, and the unverifiable render step
+- Custom report theme `AdventureWorksClean-a7c3e91b.json` matching `report-prototype.html`
+  (palette, card chrome, table row banding), registered in `report.json`
+- Five accent-coloured KPI cards on Executive Overview, replacing the single 1240px-wide
+  multi-value card that could not carry per-card accent colours
+- `fytrajectory000000001` — Annual Growth Trajectory column chart by `FiscalYearLabel`
+- Three insight cards on Product Profitability, matching the prototype's insight row
+- Idempotent theming pipeline: `scripts/apply_report_theme.js` and the `build_*` /
+  `relayout_*` steps it calls. Every step reads current file state, so re-running is safe
 - `scripts/validate_m_expressions.py` — structural validator for M bodies embedded in
   `expressions.tmdl` (BOM/UTF-8 hygiene, bracket balance with string/comment tracking,
   terminating `in` expression shape). Closes GAP-07: malformed M previously passed every

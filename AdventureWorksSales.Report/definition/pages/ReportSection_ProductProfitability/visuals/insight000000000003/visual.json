@@ -1,72 +1,60 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
-  "name": "subcat00000000000001",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "insight000000000003",
   "position": {
-    "x": 640,
-    "y": 550,
-    "z": 3000,
-    "height": 155,
-    "width": 620,
-    "tabOrder": 3000
+    "x": 836,
+    "y": 400,
+    "z": 5002,
+    "height": 140,
+    "width": 400,
+    "tabOrder": 5002
   },
   "visual": {
-    "visualType": "barChart",
-    "query": {
-      "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "DimProduct"
-                    }
-                  },
-                  "Property": "Subcategory"
-                }
-              },
-              "queryRef": "DimProduct.Subcategory",
-              "nativeQueryRef": "Subcategory",
-              "active": true
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "FactSales"
-                    }
-                  },
-                  "Property": "Total Sales"
-                }
-              },
-              "queryRef": "FactSales.Total Sales",
-              "nativeQueryRef": "Total Sales"
-            }
-          ]
-        }
-      }
-    },
+    "visualType": "textbox",
     "objects": {
-      "dataPoint": [
+      "general": [
         {
           "properties": {
-            "defaultColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#2563EB'"
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "GEOGRAPHIC DOMINANCE",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#10B981",
+                      "fontWeight": "bold",
+                      "fontFamily": "Segoe UI Semibold"
                     }
                   }
-                }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "North America",
+                    "textStyle": {
+                      "fontSize": "16pt",
+                      "color": "#0F172A",
+                      "fontWeight": "bold",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The United States and Canada together drive roughly three quarters of enterprise revenue. Use the territory table to compare Group and Region performance.",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#64748B",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]
@@ -147,28 +135,28 @@
             "top": {
               "expr": {
                 "Literal": {
-                  "Value": "8D"
+                  "Value": "12D"
                 }
               }
             },
             "bottom": {
               "expr": {
                 "Literal": {
-                  "Value": "8D"
+                  "Value": "12D"
                 }
               }
             },
             "left": {
               "expr": {
                 "Literal": {
-                  "Value": "8D"
+                  "Value": "12D"
                 }
               }
             },
             "right": {
               "expr": {
                 "Literal": {
-                  "Value": "8D"
+                  "Value": "12D"
                 }
               }
             }
@@ -188,14 +176,14 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Revenue by Subcategory'"
+                  "Value": "'GEOGRAPHIC DOMINANCE'"
                 }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "9D"
                 }
               }
             },
@@ -204,7 +192,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#1E293B'"
+                      "Value": "'#10B981'"
                     }
                   }
                 }
@@ -214,13 +202,6 @@
               "expr": {
                 "Literal": {
                   "Value": "'left'"
-                }
-              }
-            },
-            "titleWrap": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
                 }
               }
             }

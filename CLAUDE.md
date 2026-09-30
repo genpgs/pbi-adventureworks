@@ -63,6 +63,33 @@ OpenCode users get two project commands in `.opencode/commands/`:
 
 Note that `hooks/pre-commit` is opt-in (`setup.sh` offers it) and covers only two of the three validators — it omits `validate_pbir.sh`. Do not rely on it as the gate.
 
+## Report Layout & Theming
+
+`AdventureWorksSales.Report` is themed to match `report-prototype.html`. The custom
+theme is `StaticResources/RegisteredResources/AdventureWorksClean-a7c3e91b.json`.
+
+Re-apply the layout after changing anything under `definition/pages/`:
+
+```bash
+node scripts/apply_report_theme.js
+```
+
+The pipeline is idempotent — every step reads the current file state and writes
+it back, so re-running is safe. Step order matters: the KPI cards must exist
+before the page-1 relayout runs, and the page-1 relayout must run before the
+bottom-row positions are set.
+
+Author PBIR changes through `powerbi-report-author`, not by hand-editing JSON:
+
+```bash
+powerbi-report-author validate AdventureWorksSales.Report
+python3 scripts/validate_report.py AdventureWorksSales.Report
+```
+
+`validate_report.py` catches canvas-level defects that schema validation cannot:
+overlapping visuals, negative positions, and anything extending past the page
+bounds. It runs in the pre-commit hook and in CI.
+
 ## Reference Resources
 
 See `.github/instructions/reference-resources.instructions.md` for DAX, M, PBIP, and TMDL reference URLs.
