@@ -23,6 +23,23 @@ table FactSales
 		mode: import
 		source =
 				let
-				    Source = #table(type table [OrderDate=date, Amount=number], {{#date(2024,1,15),1250},{#date(2025,9,4),990}})
-				in Source
+				    // ── Real data source ───────────────────────────────────────────────
+				    // A PBIP whose only query is #table(...) has NO data source at all.
+				    // Power BI Desktop then NREs in MashupDiscoveryService while probing
+				    // for composite-model consent on open, and silently degrades every
+				    // derived column's dataType to string. Anchoring to the CSV keeps a
+				    // genuine source in the model while staying self-contained.
+				    Source = Csv.Document(
+				        File.Contents(BasePath & "samples/pbip-calendar-baseline/data/FactSales.csv"),
+				        [Delimiter = ",", Columns = 2, Encoding = 65001]
+				    ),
+				    Typed = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Result = Table.TransformColumnTypes(Typed, {
+				        {"OrderDate", type date},
+				        {"Amount", type number}
+				    })
+				in
+				    Result
+
+	annotation PBI_ResultType = Table
 

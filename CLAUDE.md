@@ -44,8 +44,8 @@ Copy `mcp/mcp.json.example` to `~/.claude/mcp.json` (global) and fill in your De
 ```bash
 python3 scripts/validate_repo.py
 python3 scripts/validate_date_table.py
-python3 scripts/validate_m_expressions.py
 bash scripts/validate_pbir.sh
+python3 scripts/validate_m_expressions.py
 ```
 
 ### OpenCode automation
@@ -61,7 +61,22 @@ OpenCode users get two project commands in `.opencode/commands/`:
 
 `/pbi-commit` refuses to run on `main` and blocks on a non-zero validator exit. Do not treat its gates as a substitute for reading the diff.
 
-Note that `hooks/pre-commit` is opt-in (`setup.sh` offers it) and covers only two of the three validators — it omits `validate_pbir.sh`. Do not rely on it as the gate.
+Note that `hooks/pre-commit` is opt-in (`setup.sh` offers it). Do not treat its gates as a
+substitute for reading the diff.
+
+## Rendered-Output Verification (Windows only)
+
+```bash
+python3 scripts/capture_report_screenshot.py --reload
+```
+
+Writes a PNG per page to `artifacts/screenshots/` from a running Power BI Desktop instance
+via the Desktop Bridge. Validation cannot catch a visual that renders wrong while passing
+every check — this is the only step that can, and it is the manual half of the authoring loop
+(see `docs/LINUX_WORKFLOW_GAPS.md` §13). Deliberately not in pre-commit or CI: it needs a live
+Desktop. Report work here is *validate-clean, visually unverified* until it has run.
+
+`python3 scripts/capture_report_screenshot.py --help` for page selection and non-reload modes.
 
 ## Report Layout & Theming
 

@@ -32,55 +32,552 @@ expression fnCalendar =
 	lineageTag: fnCalendar
 
 expression fnCalendarWeekBased =
-		(FiscalYearStartDate as date, NumberOfYears as number, optional WeekPattern as nullable text, optional WeekStartDay as nullable text, optional Culture as nullable text) as table =>
+		(FiscalYearStartDate as date, NumberOfYears as number, optional WeekPattern as nullable text, optional WeekStartDay as nullable text, optional Culture as nullable text, optional FiscalYearLabelMode as nullable text) as table =>
 		let
-		    Pattern   = if WeekPattern  = null or WeekPattern  = "" then "445"      else WeekPattern,
-		    StartDay  = if WeekStartDay = null or WeekStartDay = "" then "Saturday" else WeekStartDay,
-		    Culture_  = if Culture      = null or Culture      = "" then "en-US"    else Culture,
-		    NYears    = if NumberOfYears < 1 then error "NumberOfYears must be >= 1." else Number.RoundDown(NumberOfYears),
-		    ValidPatterns = {"445", "454", "544", "13period"},
-		    _PatternCheck = if List.Contains(ValidPatterns, Pattern) then null else error "WeekPattern must be one of: 445, 454, 544, 13period.",
-		    DayOffsetMap = [Saturday = 6, Sunday = 0, Monday = 1],
-		    DayOffset    = if Record.HasFields(DayOffsetMap, StartDay) then Record.Field(DayOffsetMap, StartDay) else error "WeekStartDay must be Saturday, Sunday, or Monday.",
-		    PeriodPattern_3 = if Pattern = "445" then {4,4,5} else if Pattern = "454" then {4,5,4} else if Pattern = "544" then {5,4,4} else {4},
-		    Is13Period  = (Pattern = "13period"),
-		    WeeksPerQtr = if Is13Period then 4 else List.Sum(PeriodPattern_3),
-		    PeriodsPerYr = if Is13Period then 13 else 12,
+		
+		    //==========================================================================
+		    // Parameters
+		    //==========================================================================
+		
+		    Pattern =
+		        if WeekPattern = null or WeekPattern = ""
+		        then "445"
+		        else WeekPattern,
+		
+		    StartDay =
+		        if WeekStartDay = null or WeekStartDay = ""
+		        then "Saturday"
+		        else WeekStartDay,
+		
+		    Culture_ =
+		        if Culture = null or Text.Trim(Culture) = ""
+		        then "en-US"
+		        else Culture,
+		
+		    LabelMode =
+		        if FiscalYearLabelMode = null or Text.Trim(FiscalYearLabelMode) = ""
+		        then "endingYear"
+		        else FiscalYearLabelMode,
+		
+		    ValidLabelModes = {"endingYear","startingYear"},
+		
+		    _LabelModeCheck =
+		        if List.Contains(ValidLabelModes, LabelMode)
+		        then true
+		        else error "FiscalYearLabelMode must be endingYear or startingYear.",
+		
+		    NYears =
+		        if NumberOfYears < 1
+		        then error "NumberOfYears must be >= 1."
+		        else Number.RoundDown(NumberOfYears),
+		
+		    ValidPatterns = {"445","454","544","13period"},
+		
+		    _PatternCheck =
+		        if List.Contains(ValidPatterns, Pattern)
+		        then true
+		        else error "WeekPattern must be one of: 445, 454, 544, 13period.",
+		
+		
+		    //==========================================================================
+		    // Week Start Day
+		    //==========================================================================
+		
+		    DayOffsetMap = [
+		        Sunday   = 0,
+		        Monday   = 1,
+		        Saturday = 6
+		    ],
+		
+		    DayOffset =
+		        if Record.HasFields(DayOffsetMap, StartDay)
+		        then Record.Field(DayOffsetMap, StartDay)
+		        else error "WeekStartDay must be Saturday, Sunday or Monday.",
+		
+		
+		    //==========================================================================
+		    // Pattern Definitions
+		    //==========================================================================
+		
+		    Is13Period = Pattern = "13period",
+		
+		    PeriodPattern =
+		        if Pattern = "445" then {4,4,5}
+		        else if Pattern = "454" then {4,5,4}
+		        else if Pattern = "544" then {5,4,4}
+		        else {4},
+		
+		    WeeksPerQuarter =
+		        if Is13Period then 13
+		        else List.Sum(PeriodPattern),
+		
+		    PeriodsPerYear =
+		        if Is13Period then 13
+		        else 12,
+		
+		
+		    //==========================================================================
+		    // Anchor FY1
+		    //==========================================================================
+		
 		    NominalStart = FiscalYearStartDate,
-		    NominalDOW   = Date.DayOfWeek(NominalStart, Day.Sunday),
-		    AnchorOffset = Number.Mod(NominalDOW - DayOffset + 7, 7),
-		    ActualFY1Start = Date.AddDays(NominalStart, -AnchorOffset),
-		    FYStartDates = List.Generate(
-		        () => [fy = 1, startD = ActualFY1Start],
-		        each [fy] <= NYears,
-		        each let nextNominal = Date.AddYears(NominalStart, [fy]), nextNomDOW = Date.DayOfWeek(nextNominal, Day.Sunday), nextAnchorOff = Number.Mod(nextNomDOW - DayOffset + 7, 7), nextActual = Date.AddDays(nextNominal, -nextAnchorOff) in [fy = [fy]+1, startD = nextActual],
-		        each [startD]),
-		    FYStartList  = FYStartDates,
-		    LastFYStart  = List.Last(FYStartList),
-		    AfterNominal = Date.AddYears(NominalStart, NYears),
-		    AfterDOW     = Date.DayOfWeek(AfterNominal, Day.Sunday),
-		    AfterOffset  = Number.Mod(AfterDOW - DayOffset + 7, 7),
-		    AfterActual  = Date.AddDays(AfterNominal, -AfterOffset),
-		    TotalDays    = Duration.Days(AfterActual - ActualFY1Start),
-		    Dates  = List.Dates(ActualFY1Start, TotalDays, #duration(1,0,0,0)),
-		    T      = Table.TransformColumnTypes(Table.FromList(Dates, Splitter.SplitByNothing(), {"Date"}), {{"Date", type date}}),
-		    DI     = Table.AddColumn(T, "_DayIdx", each Duration.Days([Date] - ActualFY1Start), Int64.Type),
-		    FY_Col = Table.AddColumn(DI, "FiscalYear", each List.Count(List.Select(FYStartList, (s) => s <= [Date])), Int64.Type),
-		    FYLabel = Table.AddColumn(FY_Col, "FiscalYearLabel", each "FY" & Text.From([FiscalYear]), type text),
-		    FYStartForRow = Table.AddColumn(FYLabel, "FiscalYearStartDate", each FYStartList{[FiscalYear]-1}, type date),
-		    WInFY  = Table.AddColumn(FYStartForRow, "FiscalWeekNumber", each Number.RoundDown(Duration.Days([Date] - [FiscalYearStartDate])/7)+1, Int64.Type),
-		    PeriodCol = Table.AddColumn(WInFY, "FiscalPeriodNumber", each let w=[FiscalWeekNumber] in if Is13Period then List.Min({Number.RoundDown((w-1)/4)+1,13}) else let wInQtr=Number.Mod(w-1,WeeksPerQtr)+1, cum1=PeriodPattern_3{0}, cum2=cum1+PeriodPattern_3{1}, pInQtr=if wInQtr<=cum1 then 1 else if wInQtr<=cum2 then 2 else 3, qtrIdx=Number.RoundDown((w-1)/WeeksPerQtr), period=qtrIdx*3+pInQtr in List.Min({period,PeriodsPerYr}), Int64.Type),
-		    PeriodLabel = Table.AddColumn(PeriodCol, "FiscalPeriodLabel", each "P" & Text.PadStart(Text.From([FiscalPeriodNumber]),2,"0"), type text),
-		    QtrNum  = Table.AddColumn(PeriodLabel, "FiscalQuarterNumber", each if Is13Period then [FiscalPeriodNumber] else Number.RoundUp([FiscalPeriodNumber]/3), Int64.Type),
-		    QtrLabel = Table.AddColumn(QtrNum, "FiscalQuarter", each if Is13Period then "P" & Text.PadStart(Text.From([FiscalPeriodNumber]),2,"0") else "Q" & Text.From([FiscalQuarterNumber]), type text),
-		    WkOfPeriod = Table.AddColumn(QtrLabel, "FiscalWeekOfPeriod", each let w=[FiscalWeekNumber] in if Is13Period then Number.Mod(w-1,4)+1 else let wInQtr=Number.Mod(w-1,WeeksPerQtr)+1, cum1=PeriodPattern_3{0}, cum2=cum1+PeriodPattern_3{1}, wInP=if wInQtr<=cum1 then wInQtr else if wInQtr<=cum2 then wInQtr-cum1 else wInQtr-cum2 in wInP, Int64.Type),
-		    DateKey_  = Table.AddColumn(WkOfPeriod, "DateKey", each Date.Year([Date])*10000+Date.Month([Date])*100+Date.Day([Date]), Int64.Type),
-		    CalYr    = Table.AddColumn(DateKey_,  "CalendarYear",        each Date.Year([Date]),  Int64.Type),
-		    CalMoNum = Table.AddColumn(CalYr,     "CalendarMonthNumber", each Date.Month([Date]), Int64.Type),
-		    CalMo    = Table.AddColumn(CalMoNum,  "CalendarMonth",       each Date.MonthName([Date], Culture_), type text),
-		    DayOfWk  = Table.AddColumn(CalMo,     "DayOfWeek",           each Date.DayOfWeekName([Date], Culture_), type text),
-		    Cleaned  = Table.RemoveColumns(DayOfWk, {"_DayIdx"}),
-		    Result   = Table.ReorderColumns(Cleaned, {"DateKey","Date","CalendarYear","CalendarMonthNumber","CalendarMonth","DayOfWeek","FiscalYear","FiscalYearLabel","FiscalYearStartDate","FiscalWeekNumber","FiscalPeriodNumber","FiscalPeriodLabel","FiscalQuarterNumber","FiscalQuarter","FiscalWeekOfPeriod"})
-		in if _PatternCheck = null then Result else error "pattern check failed"
+		
+		    NominalDOW =
+		        Date.DayOfWeek(NominalStart, Day.Sunday),
+		
+		    AnchorOffset =
+		        Number.Mod(
+		            NominalDOW - DayOffset + 7,
+		            7
+		        ),
+		
+		    ActualFY1Start =
+		        Date.AddDays(
+		            NominalStart,
+		            -AnchorOffset
+		        ),
+		
+		
+		    //==========================================================================
+		    // Fiscal Year Starts
+		    //==========================================================================
+		
+		    FYStarts =
+		        List.Generate(
+		            () => [FY = 1, StartDate = ActualFY1Start],
+		
+		            each [FY] <= NYears + 1,
+		
+		            each
+		                let
+		                    NextNominal =
+		                        Date.AddYears(
+		                            NominalStart,
+		                            [FY]
+		                        ),
+		
+		                    NextDOW =
+		                        Date.DayOfWeek(
+		                            NextNominal,
+		                            Day.Sunday
+		                        ),
+		
+		                    NextOffset =
+		                        Number.Mod(
+		                            NextDOW - DayOffset + 7,
+		                            7
+		                        ),
+		
+		                    NextActual =
+		                        Date.AddDays(
+		                            NextNominal,
+		                            -NextOffset
+		                        )
+		                in
+		                    [
+		                        FY = [FY] + 1,
+		                        StartDate = NextActual
+		                    ],
+		
+		            each [StartDate]
+		        ),
+		
+		    FYRanges =
+		        List.Transform(
+		            {0..NYears-1},
+		            each
+		                let
+		                    StartDate = FYStarts{_},
+		                    EndDate   = FYStarts{_+1},
+		                    LastDay   = Date.AddDays(EndDate, -1),
+		                    Days      = Duration.Days(EndDate - StartDate),
+		                    Weeks     = Number.RoundDown(Days / 7)
+		                in
+		                    [
+		                        FiscalYearOrdinal = _ + 1,
+		                        StartDate = StartDate,
+		                        EndDate = EndDate,
+		                        StartYear = Date.Year(StartDate),
+		                        EndYear = Date.Year(LastDay),
+		                        WeeksInYear = Weeks,
+		                        Is53WeekYear = Weeks = 53
+		                    ]
+		        ),
+		
+		    LastDate =
+		        Date.AddDays(
+		            FYStarts{NYears},
+		            -1
+		        ),
+		
+		    TotalDays =
+		        Duration.Days(
+		            LastDate - ActualFY1Start
+		        ) + 1,
+		
+		
+		    //==========================================================================
+		    // Daily Calendar
+		    //==========================================================================
+		
+		    Dates =
+		        List.Dates(
+		            ActualFY1Start,
+		            TotalDays,
+		            #duration(1,0,0,0)
+		        ),
+		
+		    BaseTable =
+		        Table.FromList(
+		            Dates,
+		            Splitter.SplitByNothing(),
+		            {"Date"}
+		        ),
+		
+		    Typed =
+		        Table.TransformColumnTypes(
+		            BaseTable,
+		            {{"Date", type date}}
+		        ),
+		
+		
+		    //==========================================================================
+		    // Assign Fiscal Year
+		    //==========================================================================
+		
+		    AddFY =
+		        Table.AddColumn(
+		            Typed,
+		            "FYRecord",
+		            each
+		                List.Last(
+		                    List.Select(
+		                        FYRanges,
+		                        (r) =>
+		                            [Date] >= r[StartDate]
+		                            and [Date] < r[EndDate]
+		                    )
+		                )
+		        ),
+		
+		    ExpandFY =
+		        Table.ExpandRecordColumn(
+		            AddFY,
+		            "FYRecord",
+		            {
+		                "StartDate",
+		                "StartYear",
+		                "EndYear",
+		                "WeeksInYear",
+		                "Is53WeekYear"
+		            },
+		            {
+		                "FiscalYearStartDate",
+		                "StartYear",
+		                "EndYear",
+		                "WeeksInYear",
+		                "Is53WeekYear"
+		            }
+		        ),
+		
+		    FYNumber =
+		        Table.AddColumn(
+		            ExpandFY,
+		            "FiscalYear",
+		            each
+		                if LabelMode = "startingYear"
+		                then [StartYear]
+		                else [EndYear],
+		            Int64.Type
+		        ),
+		
+		    FYNumeric =
+		        Table.RemoveColumns(
+		            FYNumber,
+		            {"StartYear", "EndYear"}
+		        ),
+		
+		    FYLabel =
+		        Table.AddColumn(
+		            FYNumeric,
+		            "FiscalYearLabel",
+		            each "FY" & Text.From([FiscalYear]),
+		            type text
+		        ),
+		
+		
+		    //==========================================================================
+		    // Fiscal Week
+		    //==========================================================================
+		
+		    FiscalWeek =
+		        Table.AddColumn(
+		            FYLabel,
+		            "FiscalWeekNumber",
+		            each
+		                Number.IntegerDivide(
+		                    Duration.Days(
+		                        [Date] - [FiscalYearStartDate]
+		                    ),
+		                    7
+		                ) + 1,
+		            Int64.Type
+		        ),
+		
+		
+		    //==========================================================================
+		    // Fiscal Period
+		    //==========================================================================
+		
+		    FiscalPeriod =
+		        Table.AddColumn(
+		            FiscalWeek,
+		            "FiscalPeriodNumber",
+		            each
+		                let
+		                    W = [FiscalWeekNumber]
+		                in
+		
+		                if Is13Period then
+		
+		                    if W > 52
+		                    then 13
+		                    else Number.IntegerDivide(W - 1, 4) + 1
+		
+		                else
+		
+		                    if W > 52 then
+		
+		                        12
+		
+		                    else
+		
+		                        let
+		
+		                            WInQuarter =
+		                                Number.Mod(
+		                                    W - 1,
+		                                    WeeksPerQuarter
+		                                ) + 1,
+		
+		                            Cum1 = PeriodPattern{0},
+		                            Cum2 = Cum1 + PeriodPattern{1},
+		
+		                            PeriodInQuarter =
+		                                if WInQuarter <= Cum1 then 1
+		                                else if WInQuarter <= Cum2 then 2
+		                                else 3,
+		
+		                            QuarterIndex =
+		                                Number.IntegerDivide(
+		                                    W - 1,
+		                                    WeeksPerQuarter
+		                                )
+		
+		                        in
+		                            QuarterIndex * 3 + PeriodInQuarter,
+		            Int64.Type
+		        ),
+		
+		    PeriodLabel =
+		        Table.AddColumn(
+		            FiscalPeriod,
+		            "FiscalPeriodLabel",
+		            each
+		                "P"
+		                & Text.PadStart(
+		                    Text.From([FiscalPeriodNumber]),
+		                    2,
+		                    "0"
+		                ),
+		            type text
+		        ),
+		
+		
+		    //==========================================================================
+		    // Fiscal Quarter
+		    //==========================================================================
+		
+		    QuarterNumber =
+		        Table.AddColumn(
+		            PeriodLabel,
+		            "FiscalQuarterNumber",
+		            each
+		                if Is13Period
+		                then [FiscalPeriodNumber]
+		                else Number.RoundUp(
+		                    [FiscalPeriodNumber] / 3
+		                ),
+		            Int64.Type
+		        ),
+		
+		    QuarterLabel =
+		        Table.AddColumn(
+		            QuarterNumber,
+		            "FiscalQuarter",
+		            each
+		                if Is13Period
+		                then [FiscalPeriodLabel]
+		                else "Q" & Text.From([FiscalQuarterNumber]),
+		            type text
+		        ),
+		
+		
+		    //==========================================================================
+		    // Week Of Period
+		    //==========================================================================
+		
+		    WeekOfPeriod =
+		        Table.AddColumn(
+		            QuarterLabel,
+		            "FiscalWeekOfPeriod",
+		            each
+		                let
+		                    W = [FiscalWeekNumber]
+		                in
+		
+		                if Is13Period then
+		
+		                    if W > 52
+		                    then 5
+		                    else Number.Mod(W - 1, 4) + 1
+		
+		                else
+		
+		                    if W > 52 then
+		
+		                        PeriodPattern{2} + 1
+		
+		                    else
+		
+		                        let
+		
+		                            WInQuarter =
+		                                Number.Mod(
+		                                    W - 1,
+		                                    WeeksPerQuarter
+		                                ) + 1,
+		
+		                            Cum1 = PeriodPattern{0},
+		                            Cum2 = Cum1 + PeriodPattern{1}
+		
+		                        in
+		
+		                            if WInQuarter <= Cum1 then
+		                                WInQuarter
+		
+		                            else if WInQuarter <= Cum2 then
+		                                WInQuarter - Cum1
+		
+		                            else
+		                                WInQuarter - Cum2,
+		            Int64.Type
+		        ),
+		
+		
+		    //==========================================================================
+		    // Calendar Attributes
+		    //==========================================================================
+		
+		    DateKey =
+		        Table.AddColumn(
+		            WeekOfPeriod,
+		            "DateKey",
+		            each
+		                Date.Year([Date]) * 10000 +
+		                Date.Month([Date]) * 100 +
+		                Date.Day([Date]),
+		            Int64.Type
+		        ),
+		
+		    CalendarYear =
+		        Table.AddColumn(
+		            DateKey,
+		            "CalendarYear",
+		            each Date.Year([Date]),
+		            Int64.Type
+		        ),
+		
+		    CalendarMonthNumber =
+		        Table.AddColumn(
+		            CalendarYear,
+		            "CalendarMonthNumber",
+		            each Date.Month([Date]),
+		            Int64.Type
+		        ),
+		
+		    CalendarMonth =
+		        Table.AddColumn(
+		            CalendarMonthNumber,
+		            "CalendarMonth",
+		            each Date.MonthName([Date], Culture_),
+		            type text
+		        ),
+		
+		    DayOfWeek =
+		        Table.AddColumn(
+		            CalendarMonth,
+		            "DayOfWeek",
+		            each Date.DayOfWeekName([Date], Culture_),
+		            type text
+		        ),
+		
+		    YearMonthSort =
+		        Table.AddColumn(
+		            DayOfWeek,
+		            "YearMonthSort",
+		            each Date.Year([Date]) * 100 + Date.Month([Date]),
+		            Int64.Type
+		        ),
+		
+		    YearMonth =
+		        Table.AddColumn(
+		            YearMonthSort,
+		            "YearMonth",
+		            each Date.MonthName([Date], Culture_) & " " & Text.From(Date.Year([Date])),
+		            type text
+		        ),
+		
+		    Result =
+		        Table.ReorderColumns(
+		            YearMonth,
+		            {
+		                "DateKey",
+		                "Date",
+		                "CalendarYear",
+		                "CalendarMonthNumber",
+		                "CalendarMonth",
+		                "YearMonthSort",
+		                "YearMonth",
+		                "DayOfWeek",
+		
+		                "FiscalYear",
+		                "FiscalYearLabel",
+		                "FiscalYearStartDate",
+		
+		                "WeeksInYear",
+		                "Is53WeekYear",
+		
+		                "FiscalWeekNumber",
+		
+		                "FiscalPeriodNumber",
+		                "FiscalPeriodLabel",
+		
+		                "FiscalQuarterNumber",
+		                "FiscalQuarter",
+		
+		                "FiscalWeekOfPeriod"
+		            }
+		        )
+		
+		        in
+		            Result
 	lineageTag: fnCalendarWeekBased
+
+expression BasePath = "E:\01-Projects\PBI-Automation\PBI-Adventureworks\" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type any]
+	lineageTag: 7c1b2a44-9f0d-4c3e-8a51-2d6e1b7f0c93
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
 
