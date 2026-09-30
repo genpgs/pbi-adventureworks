@@ -6,7 +6,7 @@
     "y": 510,
     "z": 6000,
     "height": 195,
-    "width": 500,
+    "width": 600,
     "tabOrder": 6000
   },
   "visual": {
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "DimSalesTerritory.Country",
-              "nativeQueryRef": "Country"
+              "nativeQueryRef": "Country",
+              "active": true
             },
             {
               "field": {
@@ -42,6 +43,20 @@
               },
               "queryRef": "FactSales.Total Sales",
               "nativeQueryRef": "Total Sales"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Sales Share %"
+                }
+              },
+              "queryRef": "FactSales.Sales Share %",
+              "nativeQueryRef": "Sales Share %"
             },
             {
               "field": {
@@ -73,6 +88,24 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FactSales"
+                  }
+                },
+                "Property": "Total Sales"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -170,23 +203,107 @@
               }
             }
           }
+        },
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10B981'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 0
+                }
+              }
+            ],
+            "metadata": "FactSales.Total Profit"
+          }
+        }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Right'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Profit Margin %"
+          }
+        },
+        {
+          "properties": {
+            "dataBars": {
+              "positiveColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "Literal": {
+                        "Value": "'#2563EB'"
+                      }
+                    }
+                  }
+                }
+              },
+              "negativeColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "Literal": {
+                        "Value": "'#EF4444'"
+                      }
+                    }
+                  }
+                }
+              },
+              "axisColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "Literal": {
+                        "Value": "'#64748B'"
+                      }
+                    }
+                  }
+                }
+              },
+              "reverseDirection": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "hideText": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Total Sales"
+          }
         }
       ]
     },
     "visualContainerObjects": {
-      "stylePreset": [
-        {
-          "properties": {
-            "name": {
-              "expr": {
-                "Literal": {
-                  "Value": "'None'"
-                }
-              }
-            }
-          }
-        }
-      ],
       "background": [
         {
           "properties": {
@@ -290,6 +407,19 @@
           }
         }
       ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
       "title": [
         {
           "properties": {
@@ -303,7 +433,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Geographic Revenue by Country'"
+                  "Value": "'GEOGRAPHIC REVENUE BY COUNTRY'"
                 }
               }
             },
@@ -331,17 +461,76 @@
                   "Value": "'left'"
                 }
               }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
             }
           }
         }
       ],
-      "visualHeader": [
+      "subTitle": [
         {
           "properties": {
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'6 Territories'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'left'"
+                }
+              }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "stylePreset": [
+        {
+          "properties": {
+            "name": {
+              "expr": {
+                "Literal": {
+                  "Value": "'None'"
                 }
               }
             }

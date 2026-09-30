@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "insight000000000002",
   "position": {
-    "x": 428,
-    "y": 400,
+    "x": 446,
+    "y": 408,
     "z": 5001,
-    "height": 140,
-    "width": 400,
+    "height": 82,
+    "width": 388,
     "tabOrder": 5001
   },
   "visual": {
@@ -21,7 +21,7 @@
                   {
                     "value": "CORE REVENUE ENGINE",
                     "textStyle": {
-                      "fontSize": "9pt",
+                      "fontSize": "8pt",
                       "color": "#6366F1",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI Semibold"
@@ -34,7 +34,7 @@
                   {
                     "value": "Mountain-200 Series",
                     "textStyle": {
-                      "fontSize": "16pt",
+                      "fontSize": "14pt",
                       "color": "#0F172A",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
@@ -45,9 +45,9 @@
               {
                 "textRuns": [
                   {
-                    "value": "The Mountain-200 frames across all sizes dominate the top of the product table with a consistent margin. Sort the main table by Total Sales to confirm the current ranking.",
+                    "value": "The Mountain-200 frames across all sizes dominate the top of the product table with a consistent margin.",
                     "textStyle": {
-                      "fontSize": "9pt",
+                      "fontSize": "8pt",
                       "color": "#64748B",
                       "fontFamily": "Segoe UI"
                     }
@@ -135,28 +135,28 @@
             "top": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "8D"
                 }
               }
             },
             "bottom": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "8D"
                 }
               }
             },
             "left": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             },
             "right": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             }
@@ -169,39 +169,7 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'CORE REVENUE ENGINE'"
-                }
-              }
-            },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "9D"
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#6366F1'"
-                    }
-                  }
-                }
-              }
-            },
-            "alignment": {
-              "expr": {
-                "Literal": {
-                  "Value": "'left'"
+                  "Value": "false"
                 }
               }
             }

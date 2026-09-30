@@ -3,9 +3,9 @@
   "name": "kpi-orders00000000001",
   "position": {
     "x": 1012,
-    "y": 85,
+    "y": 98,
     "z": 3004,
-    "height": 95,
+    "height": 112,
     "width": 240,
     "tabOrder": 3004
   },
@@ -28,6 +28,34 @@
               },
               "queryRef": "FactSales.Total Orders",
               "nativeQueryRef": "Total Orders"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Orders YoY Growth %"
+                }
+              },
+              "queryRef": "FactSales.Orders YoY Growth %",
+              "nativeQueryRef": "Orders YoY Growth %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Average Order Value"
+                }
+              },
+              "queryRef": "FactSales.Average Order Value",
+              "nativeQueryRef": "Average Order Value"
             }
           ]
         }
@@ -71,7 +99,71 @@
             }
           },
           "selector": {
-            "id": "default"
+            "metadata": "FactSales.Total Orders"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10B981'"
+                    }
+                  }
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Orders YoY Growth %"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Average Order Value"
           }
         }
       ],

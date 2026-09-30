@@ -2,18 +2,18 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "fytrajectory000000001",
   "position": {
-    "x": 852,
+    "x": 952,
     "y": 510,
     "z": 8000,
     "height": 195,
-    "width": 408,
+    "width": 308,
     "tabOrder": 8000
   },
   "visual": {
-    "visualType": "clusteredColumnChart",
+    "visualType": "tableEx",
     "query": {
       "queryState": {
-        "Category": {
+        "Values": {
           "projections": [
             {
               "field": {
@@ -29,11 +29,7 @@
               "queryRef": "Calendar.FiscalYearLabel",
               "nativeQueryRef": "FiscalYearLabel",
               "active": true
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
+            },
             {
               "field": {
                 "Measure": {
@@ -47,6 +43,76 @@
               },
               "queryRef": "FactSales.Total Sales",
               "nativeQueryRef": "Total Sales"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Sales YoY Growth %"
+                }
+              },
+              "queryRef": "FactSales.Sales YoY Growth %",
+              "nativeQueryRef": "Sales YoY Growth %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Total Profit"
+                }
+              },
+              "queryRef": "FactSales.Total Profit",
+              "nativeQueryRef": "Total Profit"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Profit Margin %"
+                }
+              },
+              "queryRef": "FactSales.Profit Margin %",
+              "nativeQueryRef": "Profit Margin %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Total Units Sold"
+                }
+              },
+              "queryRef": "FactSales.Total Units Sold",
+              "nativeQueryRef": "Total Units Sold"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Total Orders"
+                }
+              },
+              "queryRef": "FactSales.Total Orders",
+              "nativeQueryRef": "Total Orders"
             }
           ]
         }
@@ -71,27 +137,37 @@
       }
     },
     "objects": {
-      "dataPoint": [
+      "general": [
+        {
+          "properties": {}
+        }
+      ],
+      "columnHeaders": [
         {
           "properties": {
-            "defaultColor": {
+            "backColor": {
               "solid": {
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2563EB'"
+                      "Value": "'#F8FAFC'"
                     }
                   }
                 }
               }
-            }
-          }
-        }
-      ],
-      "labels": [
-        {
-          "properties": {
-            "show": {
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            },
+            "bold": {
               "expr": {
                 "Literal": {
                   "Value": "true"
@@ -101,17 +177,192 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "9D"
+                  "Value": "8D"
                 }
               }
             },
-            "labelPrecision": {
+            "columnAdjustment": {
               "expr": {
                 "Literal": {
-                  "Value": "0L"
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }
+          }
+        }
+      ],
+      "values": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "backColorPrimary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "backColorSecondary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F8FAFC'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10B981'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 0
+                }
+              }
+            ],
+            "metadata": "FactSales.Total Profit"
+          }
+        },
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F59E0B'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 0
+                }
+              }
+            ],
+            "metadata": "FactSales.Profit Margin %"
+          }
+        },
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10B981'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 0
+                }
+              }
+            ],
+            "metadata": "FactSales.Sales YoY Growth %"
+          }
+        }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "dataBars": {
+              "positiveColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "Literal": {
+                        "Value": "'#2563EB'"
+                      }
+                    }
+                  }
+                }
+              },
+              "negativeColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "Literal": {
+                        "Value": "'#EF4444'"
+                      }
+                    }
+                  }
+                }
+              },
+              "axisColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "Literal": {
+                        "Value": "'#64748B'"
+                      }
+                    }
+                  }
+                }
+              },
+              "reverseDirection": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "hideText": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Total Sales"
           }
         }
       ]
@@ -220,6 +471,19 @@
           }
         }
       ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
       "title": [
         {
           "properties": {
@@ -233,7 +497,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Annual Growth Trajectory (4-4-5 Fiscal)'"
+                  "Value": "'ANNUAL GROWTH TRAJECTORY'"
                 }
               }
             },
@@ -261,17 +525,76 @@
                   "Value": "'left'"
                 }
               }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
             }
           }
         }
       ],
-      "visualHeader": [
+      "subTitle": [
         {
           "properties": {
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'4-4-5 fiscal calendar'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'left'"
+                }
+              }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "stylePreset": [
+        {
+          "properties": {
+            "name": {
+              "expr": {
+                "Literal": {
+                  "Value": "'None'"
                 }
               }
             }

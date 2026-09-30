@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "insight000000000003",
   "position": {
-    "x": 836,
-    "y": 400,
+    "x": 872,
+    "y": 408,
     "z": 5002,
-    "height": 140,
-    "width": 400,
+    "height": 82,
+    "width": 388,
     "tabOrder": 5002
   },
   "visual": {
@@ -21,7 +21,7 @@
                   {
                     "value": "GEOGRAPHIC DOMINANCE",
                     "textStyle": {
-                      "fontSize": "9pt",
+                      "fontSize": "8pt",
                       "color": "#10B981",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI Semibold"
@@ -34,7 +34,7 @@
                   {
                     "value": "North America",
                     "textStyle": {
-                      "fontSize": "16pt",
+                      "fontSize": "14pt",
                       "color": "#0F172A",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
@@ -45,9 +45,9 @@
               {
                 "textRuns": [
                   {
-                    "value": "The United States and Canada together drive roughly three quarters of enterprise revenue. Use the territory table to compare Group and Region performance.",
+                    "value": "The United States and Canada together drive roughly three quarters of enterprise revenue.",
                     "textStyle": {
-                      "fontSize": "9pt",
+                      "fontSize": "8pt",
                       "color": "#64748B",
                       "fontFamily": "Segoe UI"
                     }
@@ -135,28 +135,28 @@
             "top": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "8D"
                 }
               }
             },
             "bottom": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "8D"
                 }
               }
             },
             "left": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             },
             "right": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             }
@@ -169,39 +169,7 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'GEOGRAPHIC DOMINANCE'"
-                }
-              }
-            },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "9D"
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#10B981'"
-                    }
-                  }
-                }
-              }
-            },
-            "alignment": {
-              "expr": {
-                "Literal": {
-                  "Value": "'left'"
+                  "Value": "false"
                 }
               }
             }
