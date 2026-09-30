@@ -58,6 +58,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `PBIP_STRUCTURE_COMPARISON_REPORT.md`. Previously only two individual `.pbi/` files were
   ignored.
 
+### Changed
+- `scripts/capture_report_screenshot.py` (new, Windows only) — rendered-output verification.
+  Drives the Power BI Desktop Bridge and writes a PNG per page to `artifacts/screenshots/`,
+  closing the Windows-side half of the authoring loop: edit → validate → reload → screenshot.
+  It is the only check that can catch a visual which renders wrong while passing every validator.
+  Deliberately not in pre-commit or CI — it needs a live Desktop, and its absence from CI is the
+  standing evidence that GAP-18 remains open. `artifacts/` is gitignored.
+- `scripts/validate_pbir.sh` now resolves its own repo root instead of scanning `.`, and captures
+  `powerbi-report-author` output to exit non-zero when `PBIR_SCHEMA_UNREACHABLE` appears even
+  though the tool exits 0. A silent schema skip previously read like a pass (GAP-15).
+- `scripts/validate_report.py` auto-discovers every `*.Report` folder (including nested ones) and
+  accepts multiple paths, so `AdventureWorksSales.Report` is no longer hardcoded. Adds a GAP-17
+  `cardVisual` minimum-height check computed from explicitly-set font sizes, padding, border, and
+  accent bar. These emit warnings, not failures — theme-inherited values are invisible at static
+  analysis time, so a green check is necessary but not sufficient.
+- `hooks/pre-commit` now runs `validate_pbir.sh` and calls `validate_report.py` without a path.
+  It previously covered only two of the three validators.
+- Optional agent skill/plugin marketplace documented in `docs/GETTING_STARTED.md` §8b and printed
+  by `setup.sh` §8b. Lists only plugins that do not overlap the three repo skills, and prints the
+  commands instead of running them, so setup never mutates global plugin state.
+- GAP-15, GAP-17, and GAP-18 status updated in `docs/LINUX_WORKFLOW_GAPS.md`.
+
 ### Fixed
 - `AdventureWorksSales.SemanticModel/definition/expressions.tmdl` — removed a stray `;`
   after `in Result` in `fnCalendar`. TMDL does not use `;` as a statement terminator, so the

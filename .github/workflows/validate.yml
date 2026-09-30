@@ -56,4 +56,4 @@ jobs:
           bash scripts/validate_pbir.sh
 
       - name: Validate PBIR canvas layout
-        run: python3 scripts/validate_report.py AdventureWorksSales.Report
+        run: python3 scripts/validate_report.py
