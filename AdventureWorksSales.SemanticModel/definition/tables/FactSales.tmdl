@@ -63,6 +63,73 @@ table FactSales
 		formatString: +0.00%;-0.00%;0.00%
 		lineageTag: Measure_ProfitYoYGrowth
 
+	measure 'Units PY' =
+			VAR CurrentFY  = MAX('Calendar'[FiscalYear])
+			VAR CurrentWks = VALUES('Calendar'[FiscalWeekNumber])
+			RETURN
+			CALCULATE(
+				[Total Units Sold],
+				'Calendar'[FiscalYear] = CurrentFY - 1,
+				'Calendar'[FiscalWeekNumber] IN CurrentWks
+			)
+		formatString: \#,0
+		lineageTag: 899a19db-f25e-4ae2-acfc-fca41f6ec689
+
+	measure 'Units YoY Growth %' = DIVIDE([Total Units Sold] - [Units PY], [Units PY], 0)
+		formatString: +0.00%;-0.00%;0.00%
+		lineageTag: 04855d1f-8425-4ab9-a591-69e09df20012
+
+	measure 'Orders PY' =
+			VAR CurrentFY  = MAX('Calendar'[FiscalYear])
+			VAR CurrentWks = VALUES('Calendar'[FiscalWeekNumber])
+			RETURN
+			CALCULATE(
+				[Total Orders],
+				'Calendar'[FiscalYear] = CurrentFY - 1,
+				'Calendar'[FiscalWeekNumber] IN CurrentWks
+			)
+		formatString: \#,0
+		lineageTag: 48dd8ee6-32cd-4022-8779-e390a3f6e5fa
+
+	measure 'Orders YoY Growth %' = DIVIDE([Total Orders] - [Orders PY], [Orders PY], 0)
+		formatString: +0.00%;-0.00%;0.00%
+		lineageTag: 777a5949-5d1a-46cb-b931-cdef232f225a
+
+	measure 'Avg Units per Order' = DIVIDE([Total Units Sold], [Total Orders], 0)
+		formatString: \#,0.0
+		lineageTag: f0f3b01f-d0a6-47c2-98fd-826df42c85da
+
+	measure 'Cost % of Sales' = DIVIDE([Total Cost], [Total Sales], 0)
+		formatString: 0.00%
+		lineageTag: 19a754bc-7be4-4b0a-82fe-2aea22df2990
+
+	measure 'Sales Share %' =
+			DIVIDE(
+			    [Total Sales],
+			    CALCULATE([Total Sales], REMOVEFILTERS(DimSalesTerritory)),
+			    0
+			)
+		formatString: 0.0%
+		lineageTag: cc73748a-d1ff-4183-81ec-b02f17631fd9
+
+	measure 'Product Revenue Rank' =
+			VAR Ranked =
+			    ADDCOLUMNS(
+			        SUMMARIZE(
+			            DimProduct,
+			            DimProduct[Product],
+			            "@Sales", [Total Sales]
+			        ),
+			        "@Rank", RANKX(ALLSELECTED(DimProduct[Product]), [@Sales], DESC, DENSE)
+			    )
+			RETURN
+			MAXX(
+			    FILTER(Ranked, DimProduct[Product] = SELECTEDVALUE(DimProduct[Product])),
+			    [@Rank]
+			)
+		formatString: \#,0
+		lineageTag: 4b1e0a67-2c58-4f19-9a3d-7e6c5b8a1f04
+
 	column SalesOrderLineKey
 		dataType: int64
 		lineageTag: SalesOrderLineKey

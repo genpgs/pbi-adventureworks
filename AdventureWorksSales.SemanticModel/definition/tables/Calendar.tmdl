@@ -44,12 +44,10 @@ table Calendar
 		sourceColumn: DayOfWeek
 
 	column FiscalYear
-		dataType: string
+		dataType: int64
 		lineageTag: FiscalYear
 		summarizeBy: none
 		sourceColumn: FiscalYear
-
-		annotation SummarizationSetBy = Automatic
 
 	column FiscalYearLabel
 		dataType: string
@@ -59,12 +57,15 @@ table Calendar
 		sortByColumn: FiscalYear
 
 	column FiscalYearStartDate
-		dataType: string
+		dataType: dateTime
+		formatString: Long Date
 		lineageTag: FiscalYearStartDate
 		summarizeBy: none
 		sourceColumn: FiscalYearStartDate
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column FiscalWeekNumber
 		dataType: int64
@@ -105,30 +106,40 @@ table Calendar
 		sourceColumn: FiscalWeekOfPeriod
 
 	column WeeksInYear
-		dataType: string
+		dataType: int64
 		lineageTag: 00bd02dc-1cea-44ee-9e38-c59bc7ce710b
 		summarizeBy: none
 		sourceColumn: WeeksInYear
 
-		annotation SummarizationSetBy = Automatic
-
 	column Is53WeekYear
-		dataType: string
+		dataType: boolean
 		lineageTag: b5fa8c6b-4ac7-43b7-a6ef-cdc705252162
 		summarizeBy: none
 		sourceColumn: Is53WeekYear
 
-		annotation SummarizationSetBy = Automatic
+	column YearMonthSort
+		dataType: int64
+		lineageTag: YearMonthSort
+		summarizeBy: none
+		sourceColumn: YearMonthSort
+
+	column YearMonth
+		dataType: string
+		lineageTag: YearMonth
+		summarizeBy: none
+		sourceColumn: YearMonth
+		sortByColumn: YearMonthSort
 
 	partition Calendar = m
 		mode: import
 		source =
 				let
-					    FiscalYearStartDate = #date(2025, 2, 1),
+				    FiscalYearStartDate = #date(2017, 7, 1),
 				    WeekPattern         = "445",
 				    WeekStartDay        = "Saturday",
-					    NumberOfYears       = 5,
-				    Calendar            = fnCalendarWeekBased(FiscalYearStartDate, NumberOfYears, WeekPattern, WeekStartDay, "en-US")
+					    NumberOfYears       = 4,
+					    LabelMode           = "endingYear",
+					    Calendar            = fnCalendarWeekBased(FiscalYearStartDate, NumberOfYears, WeekPattern, WeekStartDay, "en-US", LabelMode)
 				in
 				    Calendar
 

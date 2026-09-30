@@ -3,9 +3,9 @@
   "name": "kpi-cost000000000001",
   "position": {
     "x": 516,
-    "y": 85,
+    "y": 98,
     "z": 3002,
-    "height": 95,
+    "height": 112,
     "width": 240,
     "tabOrder": 3002
   },
@@ -28,6 +28,20 @@
               },
               "queryRef": "FactSales.Total Cost",
               "nativeQueryRef": "Total Cost"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Cost % of Sales"
+                }
+              },
+              "queryRef": "FactSales.Cost % of Sales",
+              "nativeQueryRef": "Cost % of Sales"
             }
           ]
         }
@@ -71,7 +85,32 @@
             }
           },
           "selector": {
-            "id": "default"
+            "metadata": "FactSales.Total Cost"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Cost % of Sales"
           }
         }
       ],

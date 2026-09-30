@@ -36,3 +36,6 @@ Thumbs.db
 
 # Generated audit reports (regenerate with scripts/, never commit)
 PBIP_STRUCTURE_COMPARISON_REPORT.md
+
+# Cached Microsoft PBIR schemas fetched by validate_pbir_ms_schema.py / validate_pbir_ajv.js
+.cache/

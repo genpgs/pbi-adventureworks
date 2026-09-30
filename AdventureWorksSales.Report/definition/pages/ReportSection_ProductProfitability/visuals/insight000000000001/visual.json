@@ -3,10 +3,10 @@
   "name": "insight000000000001",
   "position": {
     "x": 20,
-    "y": 400,
+    "y": 408,
     "z": 5000,
-    "height": 140,
-    "width": 400,
+    "height": 82,
+    "width": 388,
     "tabOrder": 5000
   },
   "visual": {
@@ -21,7 +21,7 @@
                   {
                     "value": "HIGHEST MARGIN CATEGORY",
                     "textStyle": {
-                      "fontSize": "9pt",
+                      "fontSize": "8pt",
                       "color": "#F59E0B",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI Semibold"
@@ -34,7 +34,7 @@
                   {
                     "value": "Clothing",
                     "textStyle": {
-                      "fontSize": "16pt",
+                      "fontSize": "14pt",
                       "color": "#0F172A",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
@@ -45,9 +45,9 @@
               {
                 "textRuns": [
                   {
-                    "value": "Clothing is a small share of total volume but carries the highest gross margin rate across all product lines. Filter the subcategory chart by Category to inspect it.",
+                    "value": "Clothing is a small share of total volume but carries the highest gross margin rate across all product lines.",
                     "textStyle": {
-                      "fontSize": "9pt",
+                      "fontSize": "8pt",
                       "color": "#64748B",
                       "fontFamily": "Segoe UI"
                     }
@@ -135,28 +135,28 @@
             "top": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "8D"
                 }
               }
             },
             "bottom": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "8D"
                 }
               }
             },
             "left": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             },
             "right": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             }
@@ -169,39 +169,7 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'HIGHEST MARGIN CATEGORY'"
-                }
-              }
-            },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "9D"
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#F59E0B'"
-                    }
-                  }
-                }
-              }
-            },
-            "alignment": {
-              "expr": {
-                "Literal": {
-                  "Value": "'left'"
+                  "Value": "false"
                 }
               }
             }

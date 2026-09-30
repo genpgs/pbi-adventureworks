@@ -3,9 +3,9 @@
   "name": "kpi-units00000000001",
   "position": {
     "x": 764,
-    "y": 85,
+    "y": 98,
     "z": 3003,
-    "height": 95,
+    "height": 112,
     "width": 240,
     "tabOrder": 3003
   },
@@ -28,6 +28,34 @@
               },
               "queryRef": "FactSales.Total Units Sold",
               "nativeQueryRef": "Total Units Sold"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Units YoY Growth %"
+                }
+              },
+              "queryRef": "FactSales.Units YoY Growth %",
+              "nativeQueryRef": "Units YoY Growth %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Avg Units per Order"
+                }
+              },
+              "queryRef": "FactSales.Avg Units per Order",
+              "nativeQueryRef": "Avg Units per Order"
             }
           ]
         }
@@ -71,7 +99,71 @@
             }
           },
           "selector": {
-            "id": "default"
+            "metadata": "FactSales.Total Units Sold"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10B981'"
+                    }
+                  }
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Units YoY Growth %"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Avg Units per Order"
           }
         }
       ],

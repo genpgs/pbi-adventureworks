@@ -32,7 +32,7 @@ expression fnCalendar =
 	lineageTag: fnCalendar
 
 expression fnCalendarWeekBased =
-		(FiscalYearStartDate as date, NumberOfYears as number, optional WeekPattern as nullable text, optional WeekStartDay as nullable text, optional Culture as nullable text) as table =>
+		(FiscalYearStartDate as date, NumberOfYears as number, optional WeekPattern as nullable text, optional WeekStartDay as nullable text, optional Culture as nullable text, optional FiscalYearLabelMode as nullable text) as table =>
 		let
 		
 		    //==========================================================================
@@ -50,9 +50,21 @@ expression fnCalendarWeekBased =
 		        else WeekStartDay,
 		
 		    Culture_ =
-		        if Culture = null or Culture = ""
+		        if Culture = null or Text.Trim(Culture) = ""
 		        then "en-US"
 		        else Culture,
+		
+		    LabelMode =
+		        if FiscalYearLabelMode = null or Text.Trim(FiscalYearLabelMode) = ""
+		        then "endingYear"
+		        else FiscalYearLabelMode,
+		
+		    ValidLabelModes = {"endingYear","startingYear"},
+		
+		    _LabelModeCheck =
+		        if List.Contains(ValidLabelModes, LabelMode)
+		        then true
+		        else error "FiscalYearLabelMode must be endingYear or startingYear.",
 		
 		    NYears =
 		        if NumberOfYears < 1
@@ -177,13 +189,16 @@ expression fnCalendarWeekBased =
 		                let
 		                    StartDate = FYStarts{_},
 		                    EndDate   = FYStarts{_+1},
+		                    LastDay   = Date.AddDays(EndDate, -1),
 		                    Days      = Duration.Days(EndDate - StartDate),
 		                    Weeks     = Number.RoundDown(Days / 7)
 		                in
 		                    [
-		                        FiscalYear = _ + 1,
+		                        FiscalYearOrdinal = _ + 1,
 		                        StartDate = StartDate,
 		                        EndDate = EndDate,
+		                        StartYear = Date.Year(StartDate),
+		                        EndYear = Date.Year(LastDay),
 		                        WeeksInYear = Weeks,
 		                        Is53WeekYear = Weeks = 53
 		                    ]
@@ -250,22 +265,41 @@ expression fnCalendarWeekBased =
 		            AddFY,
 		            "FYRecord",
 		            {
-		                "FiscalYear",
 		                "StartDate",
+		                "StartYear",
+		                "EndYear",
 		                "WeeksInYear",
 		                "Is53WeekYear"
 		            },
 		            {
-		                "FiscalYear",
 		                "FiscalYearStartDate",
+		                "StartYear",
+		                "EndYear",
 		                "WeeksInYear",
 		                "Is53WeekYear"
 		            }
 		        ),
 		
-		    FYLabel =
+		    FYNumber =
 		        Table.AddColumn(
 		            ExpandFY,
+		            "FiscalYear",
+		            each
+		                if LabelMode = "startingYear"
+		                then [StartYear]
+		                else [EndYear],
+		            Int64.Type
+		        ),
+		
+		    FYNumeric =
+		        Table.RemoveColumns(
+		            FYNumber,
+		            {"StartYear", "EndYear"}
+		        ),
+		
+		    FYLabel =
+		        Table.AddColumn(
+		            FYNumeric,
 		            "FiscalYearLabel",
 		            each "FY" & Text.From([FiscalYear]),
 		            type text
@@ -488,15 +522,33 @@ expression fnCalendarWeekBased =
 		            type text
 		        ),
 		
+		    YearMonthSort =
+		        Table.AddColumn(
+		            DayOfWeek,
+		            "YearMonthSort",
+		            each Date.Year([Date]) * 100 + Date.Month([Date]),
+		            Int64.Type
+		        ),
+		
+		    YearMonth =
+		        Table.AddColumn(
+		            YearMonthSort,
+		            "YearMonth",
+		            each Date.MonthName([Date], Culture_) & " " & Text.From(Date.Year([Date])),
+		            type text
+		        ),
+		
 		    Result =
 		        Table.ReorderColumns(
-		            DayOfWeek,
+		            YearMonth,
 		            {
 		                "DateKey",
 		                "Date",
 		                "CalendarYear",
 		                "CalendarMonthNumber",
 		                "CalendarMonth",
+		                "YearMonthSort",
+		                "YearMonth",
 		                "DayOfWeek",
 		
 		                "FiscalYear",

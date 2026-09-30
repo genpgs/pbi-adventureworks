@@ -3,9 +3,9 @@
   "name": "kpi-profit0000000001",
   "position": {
     "x": 268,
-    "y": 85,
+    "y": 98,
     "z": 3001,
-    "height": 95,
+    "height": 112,
     "width": 240,
     "tabOrder": 3001
   },
@@ -28,6 +28,34 @@
               },
               "queryRef": "FactSales.Total Profit",
               "nativeQueryRef": "Total Profit"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Profit YoY Growth %"
+                }
+              },
+              "queryRef": "FactSales.Profit YoY Growth %",
+              "nativeQueryRef": "Profit YoY Growth %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactSales"
+                    }
+                  },
+                  "Property": "Profit Margin %"
+                }
+              },
+              "queryRef": "FactSales.Profit Margin %",
+              "nativeQueryRef": "Profit Margin %"
             }
           ]
         }
@@ -71,7 +99,71 @@
             }
           },
           "selector": {
-            "id": "default"
+            "metadata": "FactSales.Total Profit"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10B981'"
+                    }
+                  }
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Profit YoY Growth %"
+          }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#64748B'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "FactSales.Profit Margin %"
           }
         }
       ],
